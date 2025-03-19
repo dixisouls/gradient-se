@@ -22,7 +22,12 @@ code {
   }
 
   .gradient-border::before {
-    @apply absolute content-[''] inset-0 rounded-lg p-0.5 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary -z-10;
+    @apply absolute content-[''] inset-0 rounded-lg bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary -z-10;
+  }
+
+  .gradient-border::after {
+    @apply absolute content-[''] rounded-lg bg-white -z-10;
+    inset: 2px; /* Creates a 2px border effect */
   }
 
   .input-field {
