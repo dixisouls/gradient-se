@@ -11,6 +11,9 @@ import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
+import SubmissionsPage from "./pages/SubmissionsPage";
+import AssignmentsPage from "./pages/AssignmentsPage";
+import GradingPage from "./pages/GradingPage";
 
 // Components
 import Header from "./components/layout/Header";
@@ -72,6 +75,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SearchPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/submissions"
+              element={
+                <ProtectedRoute>
+                  <SubmissionsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assignments"
+              element={
+                <ProtectedRoute>
+                  <AssignmentsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/grading"
+              element={
+                <ProtectedRoute>
+                  <GradingPage />
                 </ProtectedRoute>
               }
             />
