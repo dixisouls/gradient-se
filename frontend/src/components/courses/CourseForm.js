@@ -15,6 +15,7 @@ const CourseForm = ({ courseId = null, onCancel }) => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
 
   const navigate = useNavigate();
@@ -56,6 +57,7 @@ const CourseForm = ({ courseId = null, onCancel }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+    setSuccess(null);
 
     try {
       setLoading(true);
@@ -69,12 +71,16 @@ const CourseForm = ({ courseId = null, onCancel }) => {
         };
 
         await courseService.updateCourse(courseId, updateData);
+        setSuccess("Course updated successfully!");
       } else {
         await courseService.createCourse(formData);
+        setSuccess("Course created successfully!");
       }
 
-      // Redirect to courses page on success
-      navigate("/courses");
+      // Redirect to courses page after a delay to show success message
+      setTimeout(() => {
+        navigate("/courses");
+      }, 1500);
     } catch (error) {
       console.error("Error saving course:", error);
       setError(
@@ -98,6 +104,15 @@ const CourseForm = ({ courseId = null, onCancel }) => {
             type="error"
             message={error}
             onClose={() => setError(null)}
+            className="mb-6"
+          />
+        )}
+
+        {success && (
+          <Alert
+            type="success"
+            message={success}
+            onClose={() => setSuccess(null)}
             className="mb-6"
           />
         )}

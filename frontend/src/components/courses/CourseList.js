@@ -13,6 +13,7 @@ const CourseList = () => {
   const [error, setError] = useState(null);
   const [currentTerm, setCurrentTerm] = useState("");
   const [terms, setTerms] = useState([]);
+  const [shouldRefetchTerms, setShouldRefetchTerms] = useState(true);
 
   const { currentUser } = useAuth();
   const isProfessor = currentUser && currentUser.role === "professor";
@@ -30,15 +31,17 @@ const CourseList = () => {
         setCourses(data.courses);
         setTotalCourses(data.total);
 
-        // Extract unique terms
-        const uniqueTerms = [
-          ...new Set(data.courses.map((course) => course.term)),
-        ];
-        setTerms(uniqueTerms);
-
-        // Set default term if not already set
-        if (!currentTerm && uniqueTerms.length > 0) {
-          setCurrentTerm(uniqueTerms[0]);
+        // Only fetch all terms when needed (initial load or after seeding)
+        if (shouldRefetchTerms) {
+          // Always fetch all courses to get all terms
+          const allCoursesData = await courseService.getAllCourses({});
+          const uniqueTerms = [
+            ...new Set(allCoursesData.courses.map((course) => course.term)),
+          ];
+          // Sort terms
+          uniqueTerms.sort();
+          setTerms(uniqueTerms);
+          setShouldRefetchTerms(false);
         }
       } catch (error) {
         console.error("Error fetching courses:", error);
@@ -49,7 +52,7 @@ const CourseList = () => {
     };
 
     fetchCourses();
-  }, [currentTerm]);
+  }, [currentTerm, shouldRefetchTerms]);
 
   const handleTermChange = (e) => {
     setCurrentTerm(e.target.value);
@@ -61,16 +64,8 @@ const CourseList = () => {
       const result = await courseService.seedCourses();
       alert(result.message); // Simple alert to inform the user
 
-      // Refresh the course list
-      const data = await courseService.getAllCourses({});
-      setCourses(data.courses);
-      setTotalCourses(data.total);
-
-      // Extract unique terms
-      const uniqueTerms = [
-        ...new Set(data.courses.map((course) => course.term)),
-      ];
-      setTerms(uniqueTerms);
+      // Set flag to refetch terms
+      setShouldRefetchTerms(true);
     } catch (error) {
       console.error("Error seeding courses:", error);
       setError("Failed to seed courses. Please try again later.");
