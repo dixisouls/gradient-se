@@ -65,28 +65,43 @@ const AboutUsPage = () => {
 
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Our Team</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {teamMembers.map((member, index) => (
-              <div
-                key={index}
-                className="gradient-border bg-white rounded-lg shadow-md p-6 flex flex-col items-center text-center"
-              >
-                <div className="rounded-full w-32 h-32 mb-4 p-1 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover rounded-full"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/team/placeholder.png";
-                    }}
-                  />
+            {teamMembers.map((member, index) => {
+              // Array of subtle background colors for differentiation
+              const bgColors = [
+                "bg-blue-50",
+                "bg-purple-50",
+                "bg-pink-50",
+                "bg-green-50",
+                "bg-yellow-50",
+                "bg-indigo-50",
+              ];
+
+              // Get a background color based on index
+              const bgColor = bgColors[index % bgColors.length];
+
+              return (
+                <div
+                  key={index}
+                  className={`${bgColor} rounded-lg shadow-md p-6 flex flex-col items-center text-center transition-all duration-300 transform hover:scale-105 hover:shadow-xl border-2 border-transparent hover:border-gradient-primary`}
+                >
+                  <div className="rounded-full w-32 h-32 mb-4 p-1 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover rounded-full"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/team/placeholder.png";
+                      }}
+                    />
+                  </div>
+                  <h4 className="font-semibold text-xl text-gray-800 mb-2">
+                    {member.name}
+                  </h4>
+                  <p className="text-gray-600">{member.description}</p>
                 </div>
-                <h4 className="font-semibold text-xl text-gray-800 mb-2">
-                  {member.name}
-                </h4>
-                <p className="text-gray-600">{member.description}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       </div>
