@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import SearchBar from "../search/SearchBar";
@@ -7,14 +7,34 @@ const Header = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   const handleSearch = (query) => {
     navigate(`/search?query=${query}`);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow">
@@ -52,8 +72,11 @@ const Header = () => {
                   <SearchBar onSearch={handleSearch} />
                 </div>
 
-                <div className="relative group">
-                  <button className="flex items-center space-x-2 text-gray-700 hover:text-gradient-primary">
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    className="flex items-center space-x-2 text-gray-700 hover:text-gradient-primary"
+                    onClick={toggleDropdown}
+                  >
                     <span>{currentUser.first_name}</span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -69,20 +92,26 @@ const Header = () => {
                     </svg>
                   </button>
 
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Profile
-                    </Link>
-                    <button
-                      onClick={logout}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    >
-                      Logout
-                    </button>
-                  </div>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        Profile
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout();
+                          setIsDropdownOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             )}
