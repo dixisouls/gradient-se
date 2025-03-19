@@ -14,6 +14,7 @@ import SearchPage from "./pages/SearchPage";
 import SubmissionsPage from "./pages/SubmissionsPage";
 import AssignmentsPage from "./pages/AssignmentsPage";
 import GradingPage from "./pages/GradingPage";
+import AboutUsPage from "./pages/AboutUsPage";
 
 // Components
 import Header from "./components/layout/Header";
@@ -102,6 +103,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/about" element={<AboutUsPage />} />
           </Routes>
         </main>
         <Footer />

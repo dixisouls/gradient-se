@@ -61,6 +61,12 @@ const Header = () => {
                 >
                   Courses
                 </Link>
+                <Link
+                  to="/about"
+                  className="text-gray-700 hover:text-gradient-primary px-3 py-2 text-sm font-medium"
+                >
+                  About Us
+                </Link>
               </nav>
             )}
           </div>
@@ -130,6 +136,12 @@ const Header = () => {
                 >
                   Register
                 </Link>
+                <Link
+                  to="/about"
+                  className="text-gradient-primary hover:text-gradient-secondary px-3 py-2 text-sm font-medium"
+                >
+                  About Us
+                </Link>
               </div>
             )}
           </div>
@@ -185,6 +197,13 @@ const Header = () => {
                 >
                   Profile
                 </Link>
+                <Link
+                  to="/about"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gradient-primary"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  About Us
+                </Link>
                 <button
                   onClick={() => {
                     logout();
@@ -220,6 +239,13 @@ const Header = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Register
+                </Link>
+                <Link
+                  to="/about"
+                  className="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100 hover:text-gradient-primary"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  About Us
                 </Link>
               </>
             )}
