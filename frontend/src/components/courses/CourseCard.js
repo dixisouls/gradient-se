@@ -18,9 +18,9 @@ const CourseCard = ({ course }) => {
         className="h-full transition-transform hover:transform hover:scale-105"
       >
         <div className="mb-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold text-gray-800">{name}</h3>
-            <span className="px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full">
+          <div className="flex justify-between items-start">
+            <h3 className="text-xl font-semibold text-gray-800 mr-3">{name}</h3>
+            <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap">
               {term}
             </span>
           </div>

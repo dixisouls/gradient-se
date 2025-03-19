@@ -95,11 +95,11 @@ const ProfessorDashboard = () => {
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <div className="mb-3">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-semibold text-gray-800">
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-semibold text-gray-800 mr-3">
                         {course.name}
                       </h4>
-                      <span className="px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full">
+                      <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap">
                         {course.term}
                       </span>
                     </div>
