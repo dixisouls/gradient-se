@@ -7,7 +7,8 @@ const SearchResults = ({ results, total, query, loading }) => {
     return (
       <Card className="text-center py-8">
         <p className="text-gray-600">
-          No results found for "{query}". Try different keywords or filters.
+          No results found{query ? ` for "${query}"` : ""}. Try different
+          keywords or filters.
         </p>
       </Card>
     );
@@ -107,7 +108,8 @@ const SearchResults = ({ results, total, query, loading }) => {
   return (
     <div>
       <p className="text-gray-600 mb-6">
-        Found {total} {total === 1 ? "result" : "results"} for "{query}"
+        Found {total} {total === 1 ? "result" : "results"}
+        {query ? ` for "${query}"` : ""}
       </p>
 
       <div className="space-y-4">

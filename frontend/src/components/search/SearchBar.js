@@ -5,9 +5,8 @@ const SearchBar = ({ onSearch, className = "", placeholder = "Search..." }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) {
-      onSearch(query.trim());
-    }
+    // Allow empty searches to work
+    onSearch(query);
   };
 
   return (

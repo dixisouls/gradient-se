@@ -47,14 +47,31 @@ const courseService = {
     return response.data;
   },
 
-  basicSearch: async (query, entityType, page = 1, perPage = 10) => {
-    let url = `/search/basic?query=${query}&page=${page}&per_page=${perPage}`;
+  basicSearch: async (query = "", entityType = "", page = 1, perPage = 10) => {
+    // Always include query parameter even if empty
+    const queryParams = new URLSearchParams();
+    queryParams.append("query", query);
+    queryParams.append("page", page);
+    queryParams.append("per_page", perPage);
+
     if (entityType) {
-      url += `&entity_type=${entityType}`;
+      queryParams.append("entity_type", entityType);
     }
 
-    const response = await api.get(url);
-    return response.data;
+    try {
+      const response = await api.get(`/search/basic?${queryParams.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error("Search API error:", error);
+      // Return empty results on error for graceful degradation
+      return {
+        results: [],
+        total: 0,
+        page: 1,
+        per_page: perPage,
+        pages: 1,
+      };
+    }
   },
 
   advancedSearch: async (searchParams) => {
