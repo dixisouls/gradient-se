@@ -2,6 +2,10 @@ from pydantic_settings import BaseSettings
 from typing import Optional
 import os
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -12,16 +16,16 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
 
     # JWT settings
-    SECRET_KEY: str = "2ce9969adf36db4bb85edc9e859759e27e26d44c2e67daa38c98c0e110034ce4"
+    SECRET_KEY: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # Database settings - Hard-coded values
-    POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "Admin"
-    POSTGRES_HOST: str = "localhost"
-    POSTGRES_PORT: str = "5432"
-    POSTGRES_DB: str = "gradient"
+    # Database settings
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_HOST: str
+    POSTGRES_PORT: str
+    POSTGRES_DB: str
 
     # CORS settings
     CORS_ORIGINS: list = ["*"]
