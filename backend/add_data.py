@@ -15,8 +15,8 @@ def hash_password(password):
 DB_PARAMS = {
     "dbname": "gradient",
     "user": "postgres",  # Replace with your PostgreSQL username
-    "password": "Admin",  # Replace with your PostgreSQL password
-    "host": "localhost",
+    "password": "Admin_2025",  # Replace with your PostgreSQL password
+    "host": "se-database.cr0aki2qe0lz.us-west-1.rds.amazonaws.com",
     "port": "5432"
 }
 
