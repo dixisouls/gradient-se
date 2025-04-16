@@ -7,6 +7,7 @@ import Card from "../common/Card";
 import Loading from "../common/Loading";
 import Alert from "../common/Alert";
 import GradientButton from "../common/GradientButton";
+import Button from "../common/Button";
 
 const StudentDashboard = () => {
   const [courses, setCourses] = useState([]);
@@ -131,9 +132,15 @@ const StudentDashboard = () => {
       <section className="mb-10">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-semibold text-gray-800">My Courses</h3>
-          <Link to="/courses">
-            <GradientButton size="sm">Browse All Courses</GradientButton>
-          </Link>
+          <div className="flex space-x-4">
+            {/* New Course Registration Button */}
+            <Link to="/course-registration">
+              <Button>Register for Courses</Button>
+            </Link>
+            <Link to="/courses">
+              <GradientButton size="sm">Browse All Courses</GradientButton>
+            </Link>
+          </div>
         </div>
 
         {loading.courses ? (
@@ -145,8 +152,8 @@ const StudentDashboard = () => {
             <p className="text-gray-600 mb-4">
               You are not enrolled in any courses yet.
             </p>
-            <Link to="/courses">
-              <GradientButton>Browse Available Courses</GradientButton>
+            <Link to="/course-registration">
+              <GradientButton>Register for Courses</GradientButton>
             </Link>
           </Card>
         ) : (
@@ -182,6 +189,7 @@ const StudentDashboard = () => {
         )}
       </section>
 
+      {/* Rest of the component remains unchanged */}
       {/* Upcoming Assignments Section */}
       <section className="mb-10">
         <h3 className="text-xl font-semibold text-gray-800 mb-6">
@@ -290,7 +298,7 @@ const StudentDashboard = () => {
         )}
       </section>
 
-      {/* Progress Overview */}
+      {/* Quick Links */}
       <section>
         <h3 className="text-xl font-semibold text-gray-800 mb-6">
           Quick Links
@@ -341,7 +349,7 @@ const StudentDashboard = () => {
             </Card>
           </Link>
 
-          <Link to="/courses" className="block hover:no-underline">
+          <Link to="/course-registration" className="block hover:no-underline">
             <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
@@ -360,7 +368,7 @@ const StudentDashboard = () => {
                     d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
                   />
                 </svg>
-                <p className="font-medium">Browse Courses</p>
+                <p className="font-medium">Register for Courses</p>
               </div>
             </Card>
           </Link>

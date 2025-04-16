@@ -9,12 +9,13 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
+import CourseRegistrationPage from "./pages/CourseRegistrationPage"; // New import
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 import SubmissionsPage from "./pages/SubmissionsPage";
-import SubmissionDetailPage from "./pages/SubmissionDetailPage"; // New import
+import SubmissionDetailPage from "./pages/SubmissionDetailPage";
 import AssignmentsPage from "./pages/AssignmentsPage";
-import AssignmentDetailPage from "./pages/AssignmentDetailPage"; // New import
+import AssignmentDetailPage from "./pages/AssignmentDetailPage";
 import GradingPage from "./pages/GradingPage";
 import AboutUsPage from "./pages/AboutUsPage";
 
@@ -65,6 +66,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* New route for course registration */}
+            <Route
+              path="/course-registration"
+              element={
+                <ProtectedRoute>
+                  <CourseRegistrationPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/profile"
               element={
@@ -89,7 +99,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* New routes for submissions */}
             <Route
               path="/submissions/:id"
               element={
@@ -106,7 +115,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* New route for assignment details */}
             <Route
               path="/assignments/:id"
               element={
