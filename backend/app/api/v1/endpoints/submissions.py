@@ -21,7 +21,8 @@ from app.database.models import (
     Feedback, 
     FeedbackDetail,
     IssueType,
-    SeverityLevel
+    SeverityLevel,
+    CourseUser
 )
 from app.models.submission import (
     SubmissionCreate, 
@@ -160,6 +161,8 @@ async def create_submission(
 ) -> Any:
     """
     Create a new submission.
+    
+    Students can only submit assignments for courses they are enrolled in.
     """
     # Validate assignment exists
     assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
@@ -168,6 +171,20 @@ async def create_submission(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assignment not found"
         )
+    
+    # Check if student is enrolled in the course (only for students)
+    if current_user.role == "student":
+        # Get course enrollment
+        enrollment = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id
+        ).first()
+        
+        if not enrollment:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only submit assignments for courses you are enrolled in"
+            )
     
     # Check if file or text is provided
     if not file and not submission_text:
@@ -272,8 +289,11 @@ def get_submission(
 ) -> Any:
     """
     Get a submission by ID.
+    
+    Students can only access their own submissions.
+    Professors can only access submissions for courses they teach.
     """
-    # Get submission with permission check
+    # Get submission
     submission = db.query(Submission).filter(Submission.id == submission_id).first()
     
     if not submission:
@@ -282,21 +302,43 @@ def get_submission(
             detail="Submission not found"
         )
     
-    # Check permission (own submission or professor of the course)
-    if submission.user_id != current_user.id and current_user.role != "professor":
+    # Get assignment to check course
+    assignment = db.query(Assignment).filter(Assignment.id == submission.assignment_id).first()
+    if not assignment:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You don't have permission to access this submission"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated assignment not found"
         )
     
+    # Check permission based on role
+    if current_user.role == "student":
+        # Students can only view their own submissions
+        if submission.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to access this submission"
+            )
+    elif current_user.role == "professor":
+        # Professors can only view submissions for courses they teach
+        professor_course = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id,
+            CourseUser.role == "professor"
+        ).first()
+        
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to access submissions for this course"
+            )
+    
     # Get assignment title
-    assignment = db.query(Assignment).filter(Assignment.id == submission.assignment_id).first()
     assignment_title = assignment.title if assignment else None
     
     # Get student info if professor
     student_name = None
     student_email = None
-    if current_user.role == "professor":
+    if current_user.role in ["professor", "admin"]:
         student = db.query(User).filter(User.id == submission.user_id).first()
         if student:
             student_name = f"{student.first_name} {student.last_name}"
@@ -352,6 +394,9 @@ def get_submissions(
 ) -> Any:
     """
     Get submissions, filtered by assignment and/or user.
+    
+    Students can only see their own submissions.
+    Professors can only see submissions for courses they teach.
     """
     # Build query
     query = db.query(Submission)
@@ -361,11 +406,36 @@ def get_submissions(
         query = query.filter(Submission.assignment_id == assignment_id)
     
     if user_id:
+        # If specific user_id is requested, check permissions
+        if current_user.role == "student" and user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Students can only view their own submissions"
+            )
         query = query.filter(Submission.user_id == user_id)
     else:
-        # If no specific user requested, limit to current user unless professor
-        if current_user.role != "professor":
+        # If no specific user requested, limit to current user if student
+        if current_user.role == "student":
             query = query.filter(Submission.user_id == current_user.id)
+    
+    # For professors, filter by courses they teach
+    if current_user.role == "professor":
+        # Get courses the professor teaches
+        taught_course_ids = db.query(CourseUser.course_id).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.role == "professor"
+        ).all()
+        
+        # Extract course IDs
+        taught_course_ids = [course_id for (course_id,) in taught_course_ids]
+        
+        # Join with assignments to filter by course_id
+        query = query.join(
+            Assignment, 
+            Submission.assignment_id == Assignment.id
+        ).filter(
+            Assignment.course_id.in_(taught_course_ids)
+        )
     
     # Execute query
     submissions = query.all()
@@ -380,7 +450,7 @@ def get_submissions(
         # Get student info if professor
         student_name = None
         student_email = None
-        if current_user.role == "professor":
+        if current_user.role in ["professor", "admin"]:
             student = db.query(User).filter(User.id == submission.user_id).first()
             if student:
                 student_name = f"{student.first_name} {student.last_name}"
@@ -442,9 +512,11 @@ def grade_submission_manually(
 ) -> Any:
     """
     Manually trigger grading for a submission.
+    
+    Only professors who teach the course can grade submissions.
     """
     # Check permission (only professors can manually grade)
-    if current_user.role != "professor":
+    if current_user.role not in ["professor", "admin"]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only professors can manually trigger grading"
@@ -457,6 +529,29 @@ def grade_submission_manually(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Submission not found"
         )
+    
+    # Get the assignment to check the course
+    assignment = db.query(Assignment).filter(Assignment.id == submission.assignment_id).first()
+    if not assignment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated assignment not found"
+        )
+    
+    # For professors, check if they teach the course
+    if current_user.role == "professor":
+        # Check if professor teaches this course
+        professor_course = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id,
+            CourseUser.role == "professor"
+        ).first()
+        
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to grade submissions for this course"
+            )
     
     # Add grading task to background tasks
     background_tasks.add_task(
@@ -473,13 +568,12 @@ def grade_submission_manually(
     db.refresh(submission)
     
     # Get assignment title
-    assignment = db.query(Assignment).filter(Assignment.id == submission.assignment_id).first()
     assignment_title = assignment.title if assignment else None
     
     # Get student info if professor
     student_name = None
     student_email = None
-    if current_user.role == "professor":
+    if current_user.role in ["professor", "admin"]:
         student = db.query(User).filter(User.id == submission.user_id).first()
         if student:
             student_name = f"{student.first_name} {student.last_name}"

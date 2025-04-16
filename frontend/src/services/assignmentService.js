@@ -2,16 +2,26 @@ import api from "./api";
 
 const assignmentService = {
   // Get all assignments
-  getAllAssignments: async (courseId, params = {}) => {
+  getAllAssignments: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+
+    if (params.skip) queryParams.append("skip", params.skip);
+    if (params.limit) queryParams.append("limit", params.limit);
+    if (params.courseId) queryParams.append("course_id", params.courseId);
+
+    const endpoint = `/assignments?${queryParams.toString()}`;
+    const response = await api.get(endpoint);
+    return response.data;
+  },
+
+  // Get assignments for a specific course
+  getCourseAssignments: async (courseId, params = {}) => {
     const queryParams = new URLSearchParams();
 
     if (params.skip) queryParams.append("skip", params.skip);
     if (params.limit) queryParams.append("limit", params.limit);
 
-    const endpoint = courseId
-      ? `/courses/${courseId}/assignments?${queryParams.toString()}`
-      : `/assignments?${queryParams.toString()}`;
-
+    const endpoint = `/assignments?course_id=${courseId}&${queryParams.toString()}`;
     const response = await api.get(endpoint);
     return response.data;
   },

@@ -9,11 +9,11 @@ from fastapi import (
     status
 )
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 from app.api.dependencies import get_db
 from app.core.auth import get_current_active_user, check_is_professor_or_admin
-from app.database.models import Assignment, Course, User
+from app.database.models import Assignment, Course, User, CourseUser
 from app.models.assignment import (
     AssignmentCreate, 
     AssignmentResponse, 
@@ -51,6 +51,9 @@ def get_assignments(
 ) -> Any:
     """
     Get all assignments with optional filtering.
+    
+    Students can only see assignments for courses they are enrolled in.
+    Professors and admins can see all assignments or filter by course.
     """
     # Build query
     query = db.query(Assignment)
@@ -58,6 +61,19 @@ def get_assignments(
     # Filter by course if provided
     if course_id:
         query = query.filter(Assignment.course_id == course_id)
+    
+    # If user is a student, only show assignments for enrolled courses
+    if current_user.role == "student":
+        # Get the courses the student is enrolled in
+        enrolled_course_ids = db.query(CourseUser.course_id).filter(
+            CourseUser.user_id == current_user.id
+        ).all()
+        
+        # Extract the course IDs from the result
+        enrolled_course_ids = [course_id for (course_id,) in enrolled_course_ids]
+        
+        # Filter assignments to only show those from enrolled courses
+        query = query.filter(Assignment.course_id.in_(enrolled_course_ids))
     
     # Get total count
     total = query.count()
@@ -104,6 +120,8 @@ def get_assignment(
 ) -> Any:
     """
     Get a specific assignment by ID.
+    
+    Students can only access assignments for courses they are enrolled in.
     """
     # Get assignment by ID
     assignment = db.query(Assignment).filter(Assignment.id == assignment_id).first()
@@ -112,6 +130,20 @@ def get_assignment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Assignment not found"
         )
+    
+    # Check permission for students (enrolled in the course)
+    if current_user.role == "student":
+        # Check if student is enrolled in the course
+        enrollment = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id
+        ).first()
+        
+        if not enrollment:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have access to this assignment"
+            )
     
     # Get course info
     course = db.query(Course).filter(Course.id == assignment.course_id).first()
@@ -171,6 +203,21 @@ async def create_assignment(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Course not found"
         )
+    
+    # If professor (not admin), check if they teach this course
+    if current_user.role == "professor":
+        # Check if professor is assigned to this course
+        professor_course = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == course_id,
+            CourseUser.role == "professor"
+        ).first()
+        
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to create assignments for this course"
+            )
     
     # Check resubmission deadline if applicable
     if allow_resubmissions and not resubmission_deadline:
@@ -264,6 +311,21 @@ async def update_assignment(
             detail="Assignment not found"
         )
     
+    # If professor (not admin), check if they teach this course
+    if current_user.role == "professor":
+        # Check if professor is assigned to this course
+        professor_course = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id,
+            CourseUser.role == "professor"
+        ).first()
+        
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to update assignments for this course"
+            )
+    
     # Handle reference solution file if provided
     reference_solution_file_path = None
     if reference_solution_file:
@@ -353,8 +415,23 @@ def delete_assignment(
             detail="Assignment not found"
         )
     
+    # If professor (not admin), check if they teach this course
+    if current_user.role == "professor":
+        # Check if professor is assigned to this course
+        professor_course = db.query(CourseUser).filter(
+            CourseUser.user_id == current_user.id,
+            CourseUser.course_id == assignment.course_id,
+            CourseUser.role == "professor"
+        ).first()
+        
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to delete assignments for this course"
+            )
+    
     # Delete assignment
     db.delete(assignment)
     db.commit()
     
-    return 
+    return  
