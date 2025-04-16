@@ -225,6 +225,8 @@ class Assignment(Base):
     rubrics = relationship(
         "Rubric", back_populates="assignment", cascade="all, delete-orphan"
     )
+    reference_solution = Column(Text, nullable=True)
+    reference_solution_file_path = Column(String(512), nullable=True)
 
     __table_args__ = (
         CheckConstraint(

@@ -151,3 +151,5 @@ temp/
 .dmypy.json
 dmypy.json
 .pyre/
+
+uploads/

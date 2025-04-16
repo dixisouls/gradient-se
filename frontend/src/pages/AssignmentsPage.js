@@ -1,99 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/layout/Sidebar";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import GradientButton from "../components/common/GradientButton";
 import Alert from "../components/common/Alert";
+import Loading from "../components/common/Loading";
+import AssignmentForm from "../components/assignments/AssignmentForm";
+import assignmentService from "../services/assignmentService";
+import courseService from "../services/courseService";
 
 const AssignmentsPage = () => {
   const { currentUser } = useAuth();
-  const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [assignments, setAssignments] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Sample assignment data based on the database schema
-  const assignments = [
-    {
-      id: 1,
-      title: "Python Basics",
-      description: "Write a program that calculates the factorial of a number.",
-      courseId: 1,
-      courseName: "Introduction to Computer Science",
-      courseCode: "CS101",
-      assignmentType: "code",
-      dueDate: "2025-03-26T23:59:59Z",
-      pointsPossible: 50,
-      allowResubmissions: true,
-      resubmissionDeadline: "2025-03-29T23:59:59Z",
-      submissions: 28,
-      pendingGrading: 5,
-    },
-    {
-      id: 2,
-      title: "Algorithm Analysis",
-      description: "Analyze the time complexity of common sorting algorithms.",
-      courseId: 1,
-      courseName: "Introduction to Computer Science",
-      courseCode: "CS101",
-      assignmentType: "essay",
-      dueDate: "2025-04-02T23:59:59Z",
-      pointsPossible: 50,
-      allowResubmissions: false,
-      resubmissionDeadline: null,
-      submissions: 12,
-      pendingGrading: 12,
-    },
-    {
-      id: 3,
-      title: "Research Paper",
-      description: "Write a 10-page research paper on a topic of your choice.",
-      courseId: 2,
-      courseName: "Advanced Composition",
-      courseCode: "ENG201",
-      assignmentType: "essay",
-      dueDate: "2025-04-09T23:59:59Z",
-      pointsPossible: 100,
-      allowResubmissions: true,
-      resubmissionDeadline: "2025-04-16T23:59:59Z",
-      submissions: 15,
-      pendingGrading: 3,
-    },
-    {
-      id: 4,
-      title: "Literary Analysis Presentation",
-      description: "Create a presentation analyzing a work of literature.",
-      courseId: 2,
-      courseName: "Advanced Composition",
-      courseCode: "ENG201",
-      assignmentType: "presentation",
-      dueDate: "2025-03-29T23:59:59Z",
-      pointsPossible: 75,
-      allowResubmissions: false,
-      resubmissionDeadline: null,
-      submissions: 8,
-      pendingGrading: 8,
-    },
-    {
-      id: 5,
-      title: "Matrix Operations",
-      description:
-        "Solve problems involving matrix operations and transformations.",
-      courseId: 3,
-      courseName: "Linear Algebra",
-      courseCode: "MATH303",
-      assignmentType: "quiz",
-      dueDate: "2025-03-24T23:59:59Z",
-      pointsPossible: 30,
-      allowResubmissions: false,
-      resubmissionDeadline: null,
-      submissions: 32,
-      pendingGrading: 15,
-    },
-  ];
+  // Check if course_id is in query params (e.g., /assignments?course_id=1)
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    const courseId = queryParams.get("course_id");
+    if (courseId) {
+      setSelectedCourse(parseInt(courseId));
+    }
+  }, [location]);
 
-  const handleViewAssignment = (assignment) => {
-    setSelectedAssignment(assignment);
-    setShowCreateForm(false);
+  const isProfessor = currentUser?.role === "professor";
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        setLoading(true);
+        const data = await assignmentService.getAllAssignments();
+        setAssignments(data.assignments || []);
+      } catch (error) {
+        console.error("Error fetching assignments:", error);
+        setError("Failed to load assignments. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAssignments();
+  }, []);
+
+  // Fetch courses for professor to select when creating assignment
+  useEffect(() => {
+    if (isProfessor) {
+      const fetchCourses = async () => {
+        try {
+          const data = await courseService.getUserCourses();
+          setCourses(data || []);
+
+          // If no course is selected yet and we have courses, select the first one
+          if (!selectedCourse && data && data.length > 0) {
+            setSelectedCourse(data[0].id);
+          }
+        } catch (error) {
+          console.error("Error fetching courses:", error);
+        }
+      };
+
+      fetchCourses();
+    }
+  }, [isProfessor, selectedCourse]);
+
+  const handleViewAssignment = (assignmentId) => {
+    navigate(`/assignments/${assignmentId}`);
+  };
+
+  const handleCourseChange = (e) => {
+    setSelectedCourse(parseInt(e.target.value));
   };
 
   const getAssignmentTypeBadge = (type) => {
@@ -153,202 +136,127 @@ const AssignmentsPage = () => {
       <div className="flex-1 p-8">
         <div className="mb-6 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-800">Assignments</h1>
-          <GradientButton
-            onClick={() => {
-              setSelectedAssignment(null);
-              setShowCreateForm(true);
-            }}
-          >
-            Create Assignment
-          </GradientButton>
+          {isProfessor && (
+            <div className="flex items-center space-x-4">
+              {courses.length > 0 && !showCreateForm && (
+                <select
+                  value={selectedCourse || ""}
+                  onChange={handleCourseChange}
+                  className="input-field py-2"
+                >
+                  <option value="" disabled>
+                    Select Course
+                  </option>
+                  {courses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.code}: {course.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <GradientButton
+                onClick={() => setShowCreateForm(true)}
+                disabled={!selectedCourse && courses.length > 0}
+              >
+                Create Assignment
+              </GradientButton>
+            </div>
+          )}
         </div>
 
         {showCreateForm ? (
-          <Card title="Create New Assignment">
-            <div className="bg-gray-50 p-6 rounded-md text-center">
-              <p className="text-gray-600 mb-4">
-                Assignment creation form will be implemented soon.
-              </p>
-              <Button onClick={() => setShowCreateForm(false)}>Cancel</Button>
-            </div>
-          </Card>
-        ) : selectedAssignment ? (
           <div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSelectedAssignment(null)}
-              className="mb-6"
-            >
-              Back to All Assignments
-            </Button>
-
-            <Card gradientBorder className="mb-8">
-              <div className="mb-4">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3">
-                  <div>
-                    <h2 className="text-xl font-bold text-gray-800">
-                      {selectedAssignment.title}
-                    </h2>
-                    <p className="text-gray-600">
-                      {selectedAssignment.courseCode}:{" "}
-                      {selectedAssignment.courseName}
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {getAssignmentTypeBadge(selectedAssignment.assignmentType)}
-                    <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full bg-gray-100 ${
-                        getDueDateStatus(selectedAssignment.dueDate).class
-                      }`}
-                    >
-                      {getDueDateStatus(selectedAssignment.dueDate).text}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {selectedAssignment.description && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    Description
-                  </h3>
-                  <p className="text-gray-700">
-                    {selectedAssignment.description}
-                  </p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-500">Points Possible</p>
-                  <p className="font-medium text-gray-800">
-                    {selectedAssignment.pointsPossible}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-500">Due Date</p>
-                  <p className="font-medium text-gray-800">
-                    {new Date(selectedAssignment.dueDate).toLocaleString()}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-500">Resubmissions</p>
-                  <p className="font-medium text-gray-800">
-                    {selectedAssignment.allowResubmissions ? (
-                      <>
-                        Allowed until{" "}
-                        {new Date(
-                          selectedAssignment.resubmissionDeadline
-                        ).toLocaleDateString()}
-                      </>
-                    ) : (
-                      "Not allowed"
-                    )}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-500">Total Submissions</p>
-                  <p className="font-medium text-gray-800">
-                    {selectedAssignment.submissions}
-                  </p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-md">
-                  <p className="text-sm text-gray-500">Pending Grading</p>
-                  <p className="font-medium text-gray-800">
-                    {selectedAssignment.pendingGrading}
-                  </p>
-                </div>
-              </div>
+            <Card title="Create New Assignment">
+              <AssignmentForm
+                courseId={selectedCourse}
+                onCancel={() => setShowCreateForm(false)}
+              />
             </Card>
-
-            <div className="flex gap-3">
-              <GradientButton>View Submissions</GradientButton>
-              <Button variant="outline">Edit Assignment</Button>
-            </div>
           </div>
         ) : (
           <div>
-            {assignments.length === 0 ? (
+            {loading ? (
+              <div className="flex justify-center py-10">
+                <Loading size="lg" />
+              </div>
+            ) : error ? (
+              <Alert type="error" message={error} />
+            ) : assignments.length === 0 ? (
               <Card className="text-center py-10">
                 <p className="text-gray-600 mb-4">
-                  You haven't created any assignments yet.
+                  {isProfessor
+                    ? "You haven't created any assignments yet."
+                    : "No assignments available."}
                 </p>
-                <GradientButton onClick={() => setShowCreateForm(true)}>
-                  Create Your First Assignment
-                </GradientButton>
+                {isProfessor && selectedCourse && (
+                  <GradientButton onClick={() => setShowCreateForm(true)}>
+                    Create Your First Assignment
+                  </GradientButton>
+                )}
+                {isProfessor && !selectedCourse && courses.length > 0 && (
+                  <div className="text-center">
+                    <p className="text-gray-600 mb-4">
+                      Please select a course to create an assignment.
+                    </p>
+                    <select
+                      value={selectedCourse || ""}
+                      onChange={handleCourseChange}
+                      className="input-field py-2 max-w-xs mx-auto"
+                    >
+                      <option value="" disabled>
+                        Select Course
+                      </option>
+                      {courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.code}: {course.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </Card>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Assignment
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Course
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Due Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Pending
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {assignments.map((assignment) => (
-                      <tr key={assignment.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="font-medium text-gray-800">
-                            {assignment.title}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-gray-600">
-                            {assignment.courseCode}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {getAssignmentTypeBadge(assignment.assignmentType)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div
-                            className={
-                              getDueDateStatus(assignment.dueDate).class
-                            }
-                          >
-                            {getDueDateStatus(assignment.dueDate).text}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-gray-600">
-                            {assignment.pendingGrading} /{" "}
-                            {assignment.submissions}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <Button
-                            size="sm"
-                            onClick={() => handleViewAssignment(assignment)}
-                          >
-                            View
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {assignments.map((assignment) => (
+                  <Card
+                    key={assignment.id}
+                    className="hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-gray-800">
+                          {assignment.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm mt-1">
+                          {assignment.course_code}: {assignment.course_name}
+                        </p>
+                      </div>
+                      <div>
+                        {getAssignmentTypeBadge(assignment.assignment_type)}
+                      </div>
+                    </div>
+
+                    {assignment.description && (
+                      <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+                        {assignment.description}
+                      </p>
+                    )}
+
+                    <div className="mt-4 flex justify-between items-center">
+                      <span
+                        className={getDueDateStatus(assignment.due_date).class}
+                      >
+                        {getDueDateStatus(assignment.due_date).text}
+                      </span>
+                      <Button
+                        size="sm"
+                        onClick={() => handleViewAssignment(assignment.id)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
               </div>
             )}
           </div>

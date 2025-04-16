@@ -12,7 +12,9 @@ import CourseDetailPage from "./pages/CourseDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 import SubmissionsPage from "./pages/SubmissionsPage";
+import SubmissionDetailPage from "./pages/SubmissionDetailPage"; // New import
 import AssignmentsPage from "./pages/AssignmentsPage";
+import AssignmentDetailPage from "./pages/AssignmentDetailPage"; // New import
 import GradingPage from "./pages/GradingPage";
 import AboutUsPage from "./pages/AboutUsPage";
 
@@ -87,11 +89,29 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* New routes for submissions */}
+            <Route
+              path="/submissions/:id"
+              element={
+                <ProtectedRoute>
+                  <SubmissionDetailPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/assignments"
               element={
                 <ProtectedRoute>
                   <AssignmentsPage />
+                </ProtectedRoute>
+              }
+            />
+            {/* New route for assignment details */}
+            <Route
+              path="/assignments/:id"
+              element={
+                <ProtectedRoute>
+                  <AssignmentDetailPage />
                 </ProtectedRoute>
               }
             />
