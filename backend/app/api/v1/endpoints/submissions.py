@@ -10,7 +10,7 @@ from fastapi import (
     status
 )
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 from app.api.dependencies import get_db
 from app.core.auth import get_current_active_user
@@ -19,7 +19,9 @@ from app.database.models import (
     Assignment, 
     Submission, 
     Feedback, 
-    FeedbackDetail
+    FeedbackDetail,
+    IssueType,
+    SeverityLevel
 )
 from app.models.submission import (
     SubmissionCreate, 
@@ -120,15 +122,22 @@ def process_submission_grading(
         db.add(db_feedback)
         db.flush()  # Get the ID without committing
         
-        # Add feedback details
+        # Add feedback details with direct SQL using fixed enum values
         for i, suggestion in enumerate(feedback.get("improvement_suggestions", [])):
-            db_detail = FeedbackDetail(
-                feedback_id=db_feedback.id,
-                issue_type="content",  # Default type
-                issue_description=suggestion,
-                severity="medium",  # Default severity
-            )
-            db.add(db_detail)
+            # Using direct SQL with literal type casting
+            stmt = text("""
+                INSERT INTO feedback_details 
+                (feedback_id, issue_type, issue_location, issue_description, suggestion, severity)
+                VALUES 
+                (:feedback_id, 'content'::issue_type, :issue_location, :issue_description, :suggestion, 'medium'::severity_level)
+            """)
+            
+            db.execute(stmt, {
+                'feedback_id': db_feedback.id,
+                'issue_description': suggestion,
+                'suggestion': None,
+                'issue_location': None
+            })
         
         # Update submission status
         submission.status = "graded"
