@@ -18,6 +18,8 @@ const SubmissionDetailPage = () => {
   const [error, setError] = useState(null);
   const [regradingLoading, setRegradingLoading] = useState(false);
   const [regradingSuccess, setRegradingSuccess] = useState(false);
+  const [acceptingLoading, setAcceptingLoading] = useState(false);
+  const [acceptingSuccess, setAcceptingSuccess] = useState(false);
 
   const isProfessor = currentUser?.role === "professor";
 
@@ -46,6 +48,7 @@ const SubmissionDetailPage = () => {
     try {
       setRegradingLoading(true);
       setRegradingSuccess(false);
+      setAcceptingSuccess(false);
 
       // Default to Medium strictness
       const updatedSubmission = await submissionService.gradeSubmission(
@@ -65,6 +68,34 @@ const SubmissionDetailPage = () => {
       setError("Failed to regrade submission. Please try again later.");
     } finally {
       setRegradingLoading(false);
+    }
+  };
+
+  // Handle accepting grade (professors only)
+  const handleAcceptGrade = async (submissionId) => {
+    if (!isProfessor) return;
+
+    try {
+      setAcceptingLoading(true);
+      setAcceptingSuccess(false);
+      setRegradingSuccess(false);
+
+      const updatedSubmission = await submissionService.acceptSubmissionGrade(
+        submissionId
+      );
+
+      setSubmission(updatedSubmission);
+      setAcceptingSuccess(true);
+
+      // Clear success message after a delay
+      setTimeout(() => {
+        setAcceptingSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error accepting grade:", error);
+      setError("Failed to accept grade. Please try again later.");
+    } finally {
+      setAcceptingLoading(false);
     }
   };
 
@@ -126,7 +157,19 @@ const SubmissionDetailPage = () => {
           />
         )}
 
-        <SubmissionDetail submission={submission} onRegrade={handleRegrade} />
+        {acceptingSuccess && (
+          <Alert
+            type="success"
+            message="Grade has been accepted! The student will now see the accepted status."
+            className="mb-6"
+          />
+        )}
+
+        <SubmissionDetail
+          submission={submission}
+          onRegrade={handleRegrade}
+          onAccept={handleAcceptGrade}
+        />
       </div>
     </div>
   );

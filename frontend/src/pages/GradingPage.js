@@ -20,6 +20,7 @@ const GradingPage = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [selectedAssignment, setSelectedAssignment] = useState("all");
+  const [processingSubmissionId, setProcessingSubmissionId] = useState(null);
 
   useEffect(() => {
     // Only professors can access this page
@@ -85,6 +86,7 @@ const GradingPage = () => {
     }
     if (
       filter === "completed" &&
+      submission.status !== "accepted" &&
       (!submission.feedback || !submission.feedback.professor_review)
     ) {
       return false;
@@ -108,7 +110,9 @@ const GradingPage = () => {
 
   const getCompletedCount = () => {
     return submissions.filter(
-      (sub) => sub.feedback && sub.feedback.professor_review
+      (sub) =>
+        sub.status === "accepted" ||
+        (sub.feedback && sub.feedback.professor_review)
     ).length;
   };
 
@@ -118,17 +122,45 @@ const GradingPage = () => {
 
   const handleRegradingAction = async (submissionId) => {
     try {
+      setProcessingSubmissionId(submissionId);
       await submissionService.gradeSubmission(submissionId, "Medium");
-      alert("Regrading initiated successfully!");
 
       // Update the submission in the list
       const updatedSubmissions = submissions.map((sub) =>
         sub.id === submissionId ? { ...sub, status: "submitted" } : sub
       );
       setSubmissions(updatedSubmissions);
+
+      alert("Regrading initiated successfully!");
     } catch (error) {
       console.error("Error regrading submission:", error);
       alert("Failed to initiate regrading. Please try again.");
+    } finally {
+      setProcessingSubmissionId(null);
+    }
+  };
+
+  const handleAcceptGrade = async (submissionId) => {
+    try {
+      setProcessingSubmissionId(submissionId);
+      const updatedSubmission = await submissionService.acceptSubmissionGrade(
+        submissionId
+      );
+
+      // Update the submission in the list
+      const updatedSubmissions = submissions.map((sub) =>
+        sub.id === submissionId
+          ? { ...sub, status: "accepted", feedback: updatedSubmission.feedback }
+          : sub
+      );
+      setSubmissions(updatedSubmissions);
+
+      alert("Grade accepted successfully!");
+    } catch (error) {
+      console.error("Error accepting grade:", error);
+      alert("Failed to accept grade. Please try again.");
+    } finally {
+      setProcessingSubmissionId(null);
     }
   };
 
@@ -153,6 +185,12 @@ const GradingPage = () => {
           </span>
         );
       }
+    } else if (submission.status === "accepted") {
+      return (
+        <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+          Accepted
+        </span>
+      );
     } else {
       return (
         <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
@@ -324,11 +362,42 @@ const GradingPage = () => {
                             : "View"}
                         </Button>
 
-                        {submission.status === "graded" && (
+                        {submission.status === "graded" &&
+                          !submission.feedback?.professor_review && (
+                            <>
+                              <Button
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => handleAcceptGrade(submission.id)}
+                                disabled={
+                                  processingSubmissionId === submission.id
+                                }
+                              >
+                                Accept
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() =>
+                                  handleRegradingAction(submission.id)
+                                }
+                                disabled={
+                                  processingSubmissionId === submission.id
+                                }
+                              >
+                                Decline
+                              </Button>
+                            </>
+                          )}
+
+                        {(submission.status === "accepted" ||
+                          (submission.status === "graded" &&
+                            submission.feedback?.professor_review)) && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleRegradingAction(submission.id)}
+                            disabled={processingSubmissionId === submission.id}
                           >
                             Regrade
                           </Button>

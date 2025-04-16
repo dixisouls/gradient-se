@@ -180,12 +180,6 @@ const AssignmentDetailPage = () => {
                   )}
                 </div>
               </div>
-
-              {isProfessor && (
-                <Button onClick={() => navigate(`/assignments/${id}/edit`)}>
-                  Edit Assignment
-                </Button>
-              )}
             </div>
           </div>
 

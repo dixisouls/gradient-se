@@ -58,6 +58,7 @@ class SubmissionStatus(str, enum.Enum):
 
     SUBMITTED = "submitted"
     GRADED = "graded"
+    ACCEPTED = "accepted"
     RESUBMITTED = "resubmitted"
 
 

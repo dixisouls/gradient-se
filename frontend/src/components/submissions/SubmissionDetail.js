@@ -5,7 +5,7 @@ import Card from "../common/Card";
 import Button from "../common/Button";
 import GradientButton from "../common/GradientButton";
 
-const SubmissionDetail = ({ submission, onRegrade }) => {
+const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
   const { currentUser } = useAuth();
   const isProfessor = currentUser?.role === "professor";
 
@@ -19,8 +19,16 @@ const SubmissionDetail = ({ submission, onRegrade }) => {
   const getStatusBadge = (status) => {
     const statusClasses = {
       submitted: "bg-yellow-100 text-yellow-800",
-      graded: "bg-green-100 text-green-800",
-      resubmitted: "bg-blue-100 text-blue-800",
+      graded: "bg-blue-100 text-blue-800",
+      accepted: "bg-green-100 text-green-800",
+      resubmitted: "bg-purple-100 text-purple-800",
+    };
+
+    const statusText = {
+      submitted: "Submitted",
+      graded: "Graded (Needs Review)",
+      accepted: "Accepted",
+      resubmitted: "Resubmitted",
     };
 
     return (
@@ -29,10 +37,16 @@ const SubmissionDetail = ({ submission, onRegrade }) => {
           statusClasses[status] || "bg-gray-100 text-gray-800"
         }`}
       >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {statusText[status] || status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
+
+  // Check if the submission needs professor review
+  const needsReview =
+    isProfessor &&
+    submission.status === "graded" &&
+    !submission.feedback?.professor_review;
 
   return (
     <Card gradientBorder>
@@ -54,10 +68,30 @@ const SubmissionDetail = ({ submission, onRegrade }) => {
         </div>
 
         {isProfessor && (
-          <div>
-            <Button onClick={() => onRegrade(submission.id)} variant="outline">
-              Regrade Submission
-            </Button>
+          <div className="flex space-x-2">
+            {needsReview ? (
+              <>
+                <Button
+                  onClick={() => onAccept(submission.id)}
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                >
+                  Accept Grade
+                </Button>
+                <Button
+                  onClick={() => onRegrade(submission.id)}
+                  variant="outline"
+                >
+                  Decline & Regrade
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={() => onRegrade(submission.id)}
+                variant="outline"
+              >
+                Regrade Submission
+              </Button>
+            )}
           </div>
         )}
       </div>

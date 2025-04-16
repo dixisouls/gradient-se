@@ -54,8 +54,16 @@ const SubmissionsPage = () => {
   const getStatusBadge = (status) => {
     const statusClasses = {
       submitted: "bg-yellow-100 text-yellow-800",
-      graded: "bg-green-100 text-green-800",
-      resubmitted: "bg-blue-100 text-blue-800",
+      graded: "bg-blue-100 text-blue-800",
+      accepted: "bg-green-100 text-green-800",
+      resubmitted: "bg-purple-100 text-purple-800",
+    };
+
+    const statusText = {
+      submitted: "Pending",
+      graded: "Graded",
+      accepted: "Accepted",
+      resubmitted: "Resubmitted",
     };
 
     return (
@@ -64,7 +72,7 @@ const SubmissionsPage = () => {
           statusClasses[status] || "bg-gray-100 text-gray-800"
         }`}
       >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {statusText[status] || status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };

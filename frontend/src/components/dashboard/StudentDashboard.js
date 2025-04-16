@@ -189,7 +189,6 @@ const StudentDashboard = () => {
         )}
       </section>
 
-      {/* Rest of the component remains unchanged */}
       {/* Upcoming Assignments Section */}
       <section className="mb-10">
         <h3 className="text-xl font-semibold text-gray-800 mb-6">
@@ -270,14 +269,31 @@ const StudentDashboard = () => {
                       <span
                         className={`px-2 py-0.5 text-xs font-medium rounded-full ${
                           submission.status === "graded"
+                            ? "bg-blue-100 text-blue-800"
+                            : submission.status === "accepted"
                             ? "bg-green-100 text-green-800"
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {submission.status === "graded" ? "Graded" : "Pending"}
+                        {submission.status === "graded"
+                          ? "Graded"
+                          : submission.status === "accepted"
+                          ? "Accepted"
+                          : submission.status === "submitted"
+                          ? "Pending"
+                          : submission.status.charAt(0).toUpperCase() +
+                            submission.status.slice(1)}
                       </span>
                     </div>
                     {submission.status === "graded" && submission.feedback ? (
+                      <p className="text-gray-600 mt-1">
+                        Score:{" "}
+                        <span className="font-medium">
+                          {submission.feedback.score}
+                        </span>
+                      </p>
+                    ) : submission.status === "accepted" &&
+                      submission.feedback ? (
                       <p className="text-gray-600 mt-1">
                         Score:{" "}
                         <span className="font-medium">

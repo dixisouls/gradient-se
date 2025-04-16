@@ -64,6 +64,12 @@ const submissionService = {
     return response.data;
   },
 
+  // Accept a submission's grade (professors only)
+  acceptSubmissionGrade: async (submissionId) => {
+    const response = await api.post(`/submissions/${submissionId}/accept`);
+    return response.data;
+  },
+
   // Get all submissions for an assignment (professors only)
   getSubmissionsByAssignment: async (assignmentId) => {
     const response = await api.get(

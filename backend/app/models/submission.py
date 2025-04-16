@@ -1,8 +1,18 @@
-# backend/app/models/submission.py (add grading related fields)
+# backend/app/models/submission.py
 
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
 from datetime import datetime
+from enum import Enum
+
+
+class SubmissionStatus(str, Enum):
+    """Submission status enum."""
+    
+    SUBMITTED = "submitted"
+    GRADED = "graded"
+    ACCEPTED = "accepted"
+    RESUBMITTED = "resubmitted"
 
 
 class GradingFeedback(BaseModel):
@@ -12,6 +22,7 @@ class GradingFeedback(BaseModel):
     improvement_suggestions: List[str]
     score: float
     similarity_score: Optional[float] = None
+    professor_review: Optional[bool] = False
 
 
 class SubmissionCreate(BaseModel):
@@ -27,7 +38,10 @@ class SubmissionResponse(BaseModel):
     
     id: int
     assignment_id: int
+    assignment_title: Optional[str] = None
     user_id: int
+    student_name: Optional[str] = None
+    student_email: Optional[str] = None
     submission_time: datetime
     is_late: bool
     file_name: Optional[str] = None
