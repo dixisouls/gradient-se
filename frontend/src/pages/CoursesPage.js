@@ -1,31 +1,32 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import CourseList from "../components/courses/CourseList";
 import CourseForm from "../components/courses/CourseForm";
 import Sidebar from "../components/layout/Sidebar";
 import GradientButton from "../components/common/GradientButton";
 
-const CoursesPage = () => {
+const CoursesPage = ({ showCreateForm: initialShowCreateForm = false }) => {
   const { currentUser } = useAuth();
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [isButtonReady, setIsButtonReady] = useState(false);
-
+  const [showCreateForm, setShowCreateForm] = useState(initialShowCreateForm);
+  const location = useLocation();
   const isProfessor = currentUser?.role === "professor";
 
-  // Ensure button is ready after component mounts
+  // Check if we have state passed from navigation that should show the form
   useEffect(() => {
-    setIsButtonReady(true);
-  }, []);
+    if (location.state?.showCreateForm) {
+      setShowCreateForm(true);
+    }
+  }, [location.state]);
 
-  const handleCreateCourse = (e) => {
-    // Prevent any default behavior
-    e.preventDefault();
-    e.stopPropagation();
+  // Also update form visibility if the prop changes
+  useEffect(() => {
+    if (initialShowCreateForm) {
+      setShowCreateForm(true);
+    }
+  }, [initialShowCreateForm]);
 
-    // Log for debugging
-    console.log("Create course button clicked");
-
-    // Update state to show form
+  const handleCreateCourse = () => {
     setShowCreateForm(true);
   };
 
@@ -43,7 +44,7 @@ const CoursesPage = () => {
           </div>
         ) : (
           <div>
-            {isProfessor && isButtonReady && (
+            {isProfessor && (
               <div className="mb-4 md:mb-6">
                 <GradientButton
                   onClick={handleCreateCourse}

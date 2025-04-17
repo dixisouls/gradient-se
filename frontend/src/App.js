@@ -58,6 +58,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            {/* Special route for course creation - MUST be before the dynamic route */}
+            <Route
+              path="/courses/new"
+              element={
+                <ProtectedRoute>
+                  <CoursesPage showCreateForm={true} />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/courses/:id"
               element={
