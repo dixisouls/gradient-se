@@ -17,18 +17,20 @@ const CourseCard = ({ course }) => {
         gradientBorder
         className="h-full transition-transform hover:transform hover:scale-105"
       >
-        <div className="mb-4">
-          <div className="flex justify-between items-start">
-            <h3 className="text-xl font-semibold text-gray-800 mr-3">{name}</h3>
-            <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap">
+        <div className="mb-3">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mr-3 mb-1 sm:mb-0 break-words">
+              {name}
+            </h3>
+            <span className="inline-flex px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap mb-1 sm:mb-0 self-start">
               {term}
             </span>
           </div>
-          <span className="text-sm text-gray-500">{code}</span>
+          <span className="text-sm text-gray-500 block">{code}</span>
         </div>
 
         {truncatedDescription && (
-          <p className="text-gray-600 mb-4">{truncatedDescription}</p>
+          <p className="text-gray-600 text-sm mb-3">{truncatedDescription}</p>
         )}
 
         <div className="mt-auto">

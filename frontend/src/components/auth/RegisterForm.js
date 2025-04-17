@@ -61,9 +61,9 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl">
-      <div className="bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-center text-3xl font-bold mb-8 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary text-transparent bg-clip-text">
+    <div className="w-full max-w-2xl px-4">
+      <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
+        <h2 className="text-center text-2xl sm:text-3xl font-bold mb-6 sm:mb-8 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary text-transparent bg-clip-text">
           Create Your GRADiEnt Account
         </h2>
 
@@ -81,7 +81,7 @@ const RegisterForm = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             <div>
               <label htmlFor="first_name" className="input-label">
                 First Name
@@ -189,8 +189,8 @@ const RegisterForm = () => {
               <label htmlFor="role" className="input-label">
                 Role
               </label>
-              <div className="flex space-x-4 mt-2">
-                <label className="flex items-center">
+              <div className="flex flex-wrap space-x-4 mt-2">
+                <label className="flex items-center mb-2">
                   <input
                     type="radio"
                     name="role"
@@ -203,7 +203,7 @@ const RegisterForm = () => {
                   <span>Student</span>
                 </label>
 
-                <label className="flex items-center">
+                <label className="flex items-center mb-2">
                   <input
                     type="radio"
                     name="role"
@@ -219,7 +219,7 @@ const RegisterForm = () => {
             </div>
           </div>
 
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <GradientButton type="submit" fullWidth disabled={loading}>
               {loading ? "Creating Account..." : "Create Account"}
             </GradientButton>

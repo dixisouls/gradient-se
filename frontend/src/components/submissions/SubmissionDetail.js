@@ -51,62 +51,69 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
   return (
     <Card gradientBorder>
       {/* Header */}
-      <div className="mb-6 flex justify-between items-start">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-gray-800">
-              Submission Details
-            </h2>
-            {getStatusBadge(submission.status)}
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 sm:gap-0">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
+                Submission Details
+              </h2>
+              {getStatusBadge(submission.status)}
+            </div>
+            <p className="text-gray-600 mt-1 text-sm sm:text-base">
+              Submitted on {formatDate(submission.submission_time)}
+              {submission.is_late && (
+                <span className="ml-2 text-red-600 font-medium">(Late)</span>
+              )}
+            </p>
           </div>
-          <p className="text-gray-600 mt-1">
-            Submitted on {formatDate(submission.submission_time)}
-            {submission.is_late && (
-              <span className="ml-2 text-red-600 font-medium">(Late)</span>
-            )}
-          </p>
-        </div>
 
-        {isProfessor && (
-          <div className="flex space-x-2">
-            {needsReview ? (
-              <>
-                <Button
-                  onClick={() => onAccept(submission.id)}
-                  className="bg-green-600 hover:bg-green-700 text-white"
-                >
-                  Accept Grade
-                </Button>
+          {isProfessor && (
+            <div className="flex flex-wrap gap-2">
+              {needsReview ? (
+                <>
+                  <Button
+                    onClick={() => onAccept(submission.id)}
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    size="sm"
+                  >
+                    Accept Grade
+                  </Button>
+                  <Button
+                    onClick={() => onRegrade(submission.id)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Decline & Regrade
+                  </Button>
+                </>
+              ) : (
                 <Button
                   onClick={() => onRegrade(submission.id)}
                   variant="outline"
+                  size="sm"
                 >
-                  Decline & Regrade
+                  Regrade Submission
                 </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => onRegrade(submission.id)}
-                variant="outline"
-              >
-                Regrade Submission
-              </Button>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Submission Content */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Submission</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
+          Submission
+        </h3>
 
         {submission.submission_text ? (
-          <div className="bg-gray-50 p-4 rounded-md font-mono whitespace-pre-wrap">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-md font-mono whitespace-pre-wrap text-sm overflow-x-auto">
             {submission.submission_text}
           </div>
         ) : submission.file_name ? (
-          <div className="bg-gray-50 p-4 rounded-md">
-            <p className="text-gray-600 mb-2">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
+            <p className="text-gray-600 mb-2 text-sm sm:text-base">
               Submitted file: {submission.file_name}
             </p>
             <Button size="sm">Download Submission</Button>
@@ -121,26 +128,29 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
       {/* Feedback Section */}
       {submission.feedback ? (
         <div>
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
               Overall Assessment
             </h3>
-            <div className="bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10 p-4 rounded-md">
-              <p className="text-gray-700">
+            <div className="bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10 p-3 sm:p-4 rounded-md">
+              <p className="text-gray-700 text-sm sm:text-base">
                 {submission.feedback.overall_assessment}
               </p>
             </div>
           </div>
 
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <div className="mb-4 sm:mb-6">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
               Improvement Suggestions
             </h3>
-            <div className="bg-gray-50 p-4 rounded-md">
-              <ul className="list-disc ml-6 space-y-2">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
+              <ul className="list-disc ml-4 sm:ml-6 space-y-2">
                 {submission.feedback.improvement_suggestions.map(
                   (suggestion, index) => (
-                    <li key={index} className="text-gray-700">
+                    <li
+                      key={index}
+                      className="text-gray-700 text-sm sm:text-base"
+                    >
                       {suggestion}
                     </li>
                   )
@@ -149,18 +159,18 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="bg-gray-50 p-4 rounded-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Score</p>
-              <p className="text-2xl font-bold text-gradient-primary">
+              <p className="text-xl sm:text-2xl font-bold text-gradient-primary">
                 {submission.feedback.score}
               </p>
             </div>
 
             {submission.feedback.similarity_score !== null && (
-              <div className="bg-gray-50 p-4 rounded-md">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
                 <p className="text-sm text-gray-500">Solution Similarity</p>
-                <p className="text-2xl font-bold text-gradient-secondary">
+                <p className="text-xl sm:text-2xl font-bold text-gradient-secondary">
                   {submission.feedback.similarity_score}%
                 </p>
               </div>
@@ -168,8 +178,8 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
           </div>
         </div>
       ) : (
-        <div className="bg-yellow-50 p-4 rounded-md mb-6">
-          <p className="text-yellow-700">
+        <div className="bg-yellow-50 p-3 sm:p-4 rounded-md mb-6">
+          <p className="text-yellow-700 text-sm sm:text-base">
             This submission is currently being graded. Refresh the page in a few
             moments to see the feedback.
           </p>
@@ -177,13 +187,17 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
       )}
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-4">
-        <Link to="..">
-          <Button variant="outline">Back</Button>
+      <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
+        <Link to=".." className="w-full sm:w-auto">
+          <Button variant="outline" fullWidth={window.innerWidth < 640}>
+            Back
+          </Button>
         </Link>
 
         {submission.feedback && (
-          <GradientButton>Download Feedback</GradientButton>
+          <GradientButton fullWidth={window.innerWidth < 640}>
+            Download Feedback
+          </GradientButton>
         )}
       </div>
     </Card>

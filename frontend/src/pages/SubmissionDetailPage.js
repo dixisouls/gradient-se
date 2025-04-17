@@ -101,9 +101,9 @@ const SubmissionDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8 flex justify-center items-center">
+        <div className="flex-1 p-4 sm:p-8 flex justify-center items-center pt-16 md:pt-4 md:ml-64">
           <Loading size="lg" />
         </div>
       </div>
@@ -112,9 +112,9 @@ const SubmissionDetailPage = () => {
 
   if (error) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message={error} />
           <div className="mt-6">
             <Button onClick={() => navigate(-1)}>Go Back</Button>
@@ -126,9 +126,9 @@ const SubmissionDetailPage = () => {
 
   if (!submission) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message="Submission not found" />
           <div className="mt-6">
             <Button onClick={() => navigate(-1)}>Go Back</Button>
@@ -139,11 +139,11 @@ const SubmissionDetailPage = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
-        <div className="mb-6">
+      <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+        <div className="mb-4">
           <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
             Back
           </Button>
@@ -153,7 +153,7 @@ const SubmissionDetailPage = () => {
           <Alert
             type="success"
             message="Regrading initiated successfully! Refresh in a few moments to see updated feedback."
-            className="mb-6"
+            className="mb-4"
           />
         )}
 
@@ -161,7 +161,7 @@ const SubmissionDetailPage = () => {
           <Alert
             type="success"
             message="Grade has been accepted! The student will now see the accepted status."
-            className="mb-6"
+            className="mb-4"
           />
         )}
 

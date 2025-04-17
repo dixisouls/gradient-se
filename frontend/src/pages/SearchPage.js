@@ -107,24 +107,26 @@ const SearchPage = () => {
   }, []);
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Search</h1>
+      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pt-16 md:pt-4 md:ml-64">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
+          Search
+        </h1>
 
-        <div className="mb-8">
+        <div className="mb-6 md:mb-8">
           <SearchBar
             onSearch={handleSearch}
-            className="max-w-2xl"
+            className="max-w-2xl mb-4"
             placeholder="Search for courses, assignments, users..."
           />
 
-          <div className="mt-4 flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-2 md:gap-4">
             <select
               value={entityType}
               onChange={handleEntityTypeChange}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gradient-primary focus:border-transparent"
+              className="px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gradient-primary focus:border-transparent"
             >
               <option value="">All Types</option>
               <option value="course">Courses</option>
@@ -135,11 +137,12 @@ const SearchPage = () => {
             <Button
               onClick={handleFilterClick}
               className="bg-gradient-to-r from-gradient-primary to-gradient-secondary text-white"
+              size="sm"
             >
               Filter
             </Button>
 
-            <div className="flex gap-2 ml-2">
+            <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
               <Button
                 size="sm"
                 variant={entityType === "" && isShowAll ? "primary" : "outline"}
@@ -156,7 +159,7 @@ const SearchPage = () => {
                 }
                 onClick={() => handleCategoryButtonClick("assignment")}
               >
-                Show All Assignments
+                All Assignments
               </Button>
               <Button
                 size="sm"
@@ -165,7 +168,7 @@ const SearchPage = () => {
                 }
                 onClick={() => handleCategoryButtonClick("user")}
               >
-                Show All Users
+                All Users
               </Button>
             </div>
           </div>
@@ -196,16 +199,16 @@ const SearchPage = () => {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-8 flex justify-center">
-                <nav className="flex items-center">
+                <nav className="flex flex-wrap items-center justify-center gap-2">
                   <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="px-4 py-2 border border-gray-300 rounded-l-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 border border-gray-300 rounded-l-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     Previous
                   </button>
 
-                  <div className="px-4 py-2 border-t border-b border-gray-300 bg-white">
+                  <div className="px-3 py-2 border-t border-b border-gray-300 bg-white text-sm">
                     <span>
                       Page {currentPage} of {totalPages}
                     </span>
@@ -214,7 +217,7 @@ const SearchPage = () => {
                   <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="px-4 py-2 border border-gray-300 rounded-r-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 border border-gray-300 rounded-r-md text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
                     Next
                   </button>

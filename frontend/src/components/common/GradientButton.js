@@ -16,9 +16,9 @@ const GradientButton = ({
     "bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary hover:brightness-110 active:brightness-90";
 
   const sizeClasses = {
-    sm: "py-1 px-3 text-sm",
-    md: "py-2 px-4 text-base",
-    lg: "py-3 px-6 text-lg",
+    sm: "py-1 px-2 sm:px-3 text-xs sm:text-sm",
+    md: "py-2 px-3 sm:px-4 text-sm sm:text-base",
+    lg: "py-2 sm:py-3 px-4 sm:px-6 text-base sm:text-lg",
   };
 
   const widthClass = fullWidth ? "w-full" : "";

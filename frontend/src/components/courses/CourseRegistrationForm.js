@@ -73,7 +73,7 @@ const CourseRegistrationForm = ({
 
   return (
     <Card>
-      <h2 className="text-xl font-semibold text-gray-800 mb-4">
+      <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
         Register for Courses
       </h2>
 
@@ -98,28 +98,32 @@ const CourseRegistrationForm = ({
         <p className="text-gray-600 mb-2">
           Select up to 3 courses to register for this term:
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {availableCourses.map((course) => (
             <div
               key={course.id}
-              className={`border rounded-lg p-4 cursor-pointer transition-all ${
+              className={`border rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
                 selectedCourses.some((selected) => selected.id === course.id)
                   ? "border-gradient-primary bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10"
                   : "border-gray-200 hover:border-gradient-primary"
               }`}
               onClick={() => toggleCourseSelection(course)}
             >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold text-gray-800">{course.name}</h3>
-                  <p className="text-sm text-gray-500">{course.code}</p>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                <div className="mb-2 sm:mb-0 sm:mr-2">
+                  <h3 className="font-semibold text-gray-800 text-sm md:text-base break-words">
+                    {course.name}
+                  </h3>
+                  <p className="text-xs md:text-sm text-gray-500">
+                    {course.code}
+                  </p>
                 </div>
-                <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-800 rounded-full self-start whitespace-nowrap">
                   {course.term}
                 </span>
               </div>
               {course.description && (
-                <p className="text-sm text-gray-600 mt-2 line-clamp-2">
+                <p className="text-xs md:text-sm text-gray-600 mt-2 line-clamp-2">
                   {course.description}
                 </p>
               )}
@@ -128,23 +132,27 @@ const CourseRegistrationForm = ({
         </div>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between items-center">
+        <div className="mb-4 sm:mb-0 w-full sm:w-auto">
           <span className="text-sm text-gray-600">
             Selected: {selectedCourses.length}/3 courses
           </span>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={() => setSelectedCourses([])}
             disabled={selectedCourses.length === 0 || loading}
+            fullWidth
+            className="sm:w-auto"
           >
             Clear Selection
           </Button>
           <GradientButton
             onClick={handleSubmit}
             disabled={selectedCourses.length === 0 || loading || success}
+            fullWidth
+            className="sm:w-auto"
           >
             {loading ? "Registering..." : "Register for Selected Courses"}
           </GradientButton>

@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 const Sidebar = () => {
   const { currentUser } = useAuth();
   const isStudent = currentUser?.role === "student";
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if screen is mobile size
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsOpen(window.innerWidth >= 768);
+    };
+
+    // Initial check
+    checkIfMobile();
+
+    // Add resize listener
+    window.addEventListener("resize", checkIfMobile);
+
+    // Cleanup
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   // Navigation items based on user role
   const navItems = [
@@ -134,37 +153,90 @@ const Sidebar = () => {
     ),
   });
 
-  return (
-    <aside className="w-64 bg-white shadow-md h-full">
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-6 text-center bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary text-transparent bg-clip-text">
-          GRADiEnt
-        </h2>
+  // Toggle sidebar
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
-        <nav className="mt-8">
-          <ul className="space-y-2">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) => `
-                    flex items-center px-4 py-2 text-gray-700 rounded-md
-                    ${
-                      isActive
-                        ? "bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10 text-gradient-primary font-medium"
-                        : "hover:bg-gray-100"
-                    }
-                  `}
-                >
-                  <span className="mr-3">{item.icon}</span>
-                  {item.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </div>
-    </aside>
+  return (
+    <>
+      {/* Mobile sidebar toggle button */}
+      {isMobile && (
+        <button
+          onClick={toggleSidebar}
+          className="fixed left-0 top-16 z-30 p-2 bg-white shadow-md rounded-r-md"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-gradient-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            {isOpen ? (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            ) : (
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            )}
+          </svg>
+        </button>
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } transform md:translate-x-0 fixed z-20 md:relative w-64 bg-white shadow-md h-screen overflow-y-auto transition-transform duration-300 ease-in-out`}
+      >
+        <div className="p-4">
+          <h2 className="text-xl font-semibold mb-6 text-center bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary text-transparent bg-clip-text">
+            GRADiEnt
+          </h2>
+
+          <nav className="mt-8">
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.path}>
+                  <NavLink
+                    to={item.path}
+                    className={({ isActive }) => `
+                      flex items-center px-4 py-2 text-gray-700 rounded-md
+                      ${
+                        isActive
+                          ? "bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10 text-gradient-primary font-medium"
+                          : "hover:bg-gray-100"
+                      }
+                    `}
+                    onClick={() => isMobile && setIsOpen(false)}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {item.label}
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
+      </aside>
+
+      {/* Overlay to close sidebar on mobile */}
+      {isMobile && isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-10"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+    </>
   );
 };
 

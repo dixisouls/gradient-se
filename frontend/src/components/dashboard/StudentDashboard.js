@@ -109,8 +109,8 @@ const StudentDashboard = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
           Student Dashboard
         </h2>
         <p className="text-gray-600">
@@ -129,35 +129,39 @@ const StudentDashboard = () => {
       )}
 
       {/* My Courses Section */}
-      <section className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">My Courses</h3>
-          <div className="flex space-x-4">
+      <section className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-3 sm:space-y-0">
+          <h3 className="text-lg md:text-xl font-semibold text-gray-800">
+            My Courses
+          </h3>
+          <div className="flex flex-wrap gap-3">
             {/* New Course Registration Button */}
             <Link to="/course-registration">
-              <Button>Register for Courses</Button>
+              <Button className="w-full sm:w-auto">Register for Courses</Button>
             </Link>
             <Link to="/courses">
-              <GradientButton size="sm">Browse All Courses</GradientButton>
+              <GradientButton size="sm" className="w-full sm:w-auto">
+                Browse All Courses
+              </GradientButton>
             </Link>
           </div>
         </div>
 
         {loading.courses ? (
-          <div className="flex justify-center py-10">
+          <div className="flex justify-center py-8">
             <Loading size="lg" />
           </div>
         ) : courses.length === 0 ? (
-          <Card className="text-center py-10">
+          <Card className="text-center py-8">
             <p className="text-gray-600 mb-4">
               You are not enrolled in any courses yet.
             </p>
-            <Link to="/course-registration">
+            <Link to="/course-registration" className="inline-block">
               <GradientButton>Register for Courses</GradientButton>
             </Link>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {courses.map((course) => (
               <Link
                 key={course.id}
@@ -166,11 +170,11 @@ const StudentDashboard = () => {
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <div className="mb-3">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-semibold text-gray-800 mr-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                      <h4 className="font-semibold text-gray-800 mr-3 mb-1 sm:mb-0 break-words">
                         {course.name}
                       </h4>
-                      <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap">
+                      <span className="inline-flex px-2 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full self-start whitespace-nowrap">
                         {course.term}
                       </span>
                     </div>
@@ -178,7 +182,7 @@ const StudentDashboard = () => {
                   </div>
 
                   {course.description && (
-                    <p className="text-gray-600 line-clamp-2 mb-3">
+                    <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                       {course.description}
                     </p>
                   )}
@@ -190,8 +194,8 @@ const StudentDashboard = () => {
       </section>
 
       {/* Upcoming Assignments Section */}
-      <section className="mb-10">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
+      <section className="mb-8">
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
           Upcoming Assignments
         </h3>
 
@@ -200,11 +204,11 @@ const StudentDashboard = () => {
             <Loading />
           </div>
         ) : upcomingAssignments.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="text-center py-6">
             <p className="text-gray-600">No upcoming assignments due soon.</p>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {upcomingAssignments.map((assignment) => (
               <Link
                 key={assignment.id}
@@ -212,9 +216,9 @@ const StudentDashboard = () => {
                 className="block hover:no-underline"
               >
                 <Card className="hover:shadow-md transition-shadow h-full">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold text-gray-800">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                    <div className="mb-2 sm:mb-0 sm:mr-3">
+                      <h3 className="font-semibold text-gray-800 break-words">
                         {assignment.title}
                       </h3>
                       <p className="text-gray-600 text-sm mt-1">
@@ -222,7 +226,7 @@ const StudentDashboard = () => {
                         {new Date(assignment.due_date).toLocaleDateString()}
                       </p>
                     </div>
-                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full whitespace-nowrap self-start">
                       {formatRelativeDate(assignment.due_date)}
                     </span>
                   </div>
@@ -234,8 +238,8 @@ const StudentDashboard = () => {
       </section>
 
       {/* Recent Submissions Section */}
-      <section className="mb-10">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
+      <section className="mb-8">
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
           Recent Submissions
         </h3>
 
@@ -244,7 +248,7 @@ const StudentDashboard = () => {
             <Loading />
           </div>
         ) : submissions.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="text-center py-6">
             <p className="text-gray-600">
               You haven't submitted any assignments yet.
             </p>
@@ -254,20 +258,20 @@ const StudentDashboard = () => {
           </Card>
         ) : (
           <Card>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {submissions.map((submission) => (
                 <Link
                   key={submission.id}
                   to={`/submissions/${submission.id}`}
                   className="block hover:no-underline"
                 >
-                  <div className="border-l-4 border-gradient-primary pl-4 py-2 hover:bg-gray-50 rounded-r">
-                    <div className="flex justify-between">
-                      <p className="font-medium text-gray-800">
+                  <div className="border-l-4 border-gradient-primary pl-3 sm:pl-4 py-2 hover:bg-gray-50 rounded-r">
+                    <div className="flex flex-col sm:flex-row sm:justify-between space-y-2 sm:space-y-0">
+                      <p className="font-medium text-gray-800 break-words">
                         {submission.assignment_title || "Assignment Submission"}
                       </p>
                       <span
-                        className={`px-2 py-0.5 text-xs font-medium rounded-full ${
+                        className={`px-2 py-0.5 text-xs font-medium rounded-full self-start sm:self-center ${
                           submission.status === "graded"
                             ? "bg-blue-100 text-blue-800"
                             : submission.status === "accepted"
@@ -286,7 +290,7 @@ const StudentDashboard = () => {
                       </span>
                     </div>
                     {submission.status === "graded" && submission.feedback ? (
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-gray-600 mt-1 text-sm">
                         Score:{" "}
                         <span className="font-medium">
                           {submission.feedback.score}
@@ -294,14 +298,14 @@ const StudentDashboard = () => {
                       </p>
                     ) : submission.status === "accepted" &&
                       submission.feedback ? (
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-gray-600 mt-1 text-sm">
                         Score:{" "}
                         <span className="font-medium">
                           {submission.feedback.score}
                         </span>
                       </p>
                     ) : (
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-gray-600 mt-1 text-sm">
                         Submitted{" "}
                         {formatRelativeDate(submission.submission_time)}
                       </p>
@@ -316,17 +320,17 @@ const StudentDashboard = () => {
 
       {/* Quick Links */}
       <section>
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
           Quick Links
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <Link to="/assignments" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-primary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-primary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -344,11 +348,11 @@ const StudentDashboard = () => {
           </Link>
 
           <Link to="/submissions" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-secondary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-secondary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -366,11 +370,11 @@ const StudentDashboard = () => {
           </Link>
 
           <Link to="/course-registration" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-tertiary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-tertiary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

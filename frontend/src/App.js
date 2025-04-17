@@ -9,7 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import CoursesPage from "./pages/CoursesPage";
 import CourseDetailPage from "./pages/CourseDetailPage";
-import CourseRegistrationPage from "./pages/CourseRegistrationPage"; // New import
+import CourseRegistrationPage from "./pages/CourseRegistrationPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
 import SubmissionsPage from "./pages/SubmissionsPage";
@@ -66,7 +66,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* New route for course registration */}
+            {/* Course registration */}
             <Route
               path="/course-registration"
               element={

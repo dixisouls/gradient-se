@@ -5,10 +5,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-800 text-white">
+    <footer className="bg-gray-800 text-white mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="text-xl font-semibold mb-4 bg-gradient-to-r from-gradient-primary via-gradient-secondary to-gradient-tertiary text-transparent bg-clip-text">
               GRADiEnt
             </h3>
@@ -18,7 +18,7 @@ const Footer = () => {
             </p>
           </div>
 
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-lg font-medium mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li>
@@ -42,7 +42,7 @@ const Footer = () => {
             </ul>
           </div>
 
-          <div>
+          <div className="text-center md:text-left">
             <h4 className="text-lg font-medium mb-4">Contact</h4>
             <p className="text-gray-300 mb-2">San Francisco State University</p>
             <p className="text-gray-300 mb-2">Department of Computer Science</p>

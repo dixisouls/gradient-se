@@ -67,11 +67,11 @@ const CourseRegistrationPage = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 pt-16 md:pt-4 md:ml-64">
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
           Course Registration
         </h1>
 
@@ -84,8 +84,8 @@ const CourseRegistrationPage = () => {
         ) : (
           <div>
             {/* Current Courses Section */}
-            <section className="mb-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            <section className="mb-6 md:mb-8">
+              <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
                 Your Current Courses
               </h2>
 
@@ -96,17 +96,17 @@ const CourseRegistrationPage = () => {
                   </p>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {userCourses.map((course) => (
                     <Card key={course.id} className="bg-blue-50">
                       <div className="mb-2">
-                        <h3 className="font-semibold text-gray-800">
+                        <h3 className="font-semibold text-gray-800 break-words">
                           {course.name}
                         </h3>
                         <p className="text-sm text-gray-500">{course.code}</p>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-800 rounded-full">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <span className="text-xs font-medium px-2 py-1 bg-blue-100 text-blue-800 rounded-full whitespace-nowrap">
                           {course.term}
                         </span>
                         <Button
@@ -131,7 +131,7 @@ const CourseRegistrationPage = () => {
               />
             ) : (
               <Card className="text-center py-8">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
                   No Available Courses
                 </h2>
                 <p className="text-gray-600 mb-4">

@@ -102,11 +102,11 @@ const ProfessorDashboard = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+      <div className="mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
           Professor Dashboard
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-600 text-sm sm:text-base">
           Welcome back! Manage your courses and student assignments.
         </p>
       </div>
@@ -121,15 +121,23 @@ const ProfessorDashboard = () => {
       )}
 
       {/* My Courses Section */}
-      <section className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">My Courses</h3>
-          <div className="flex space-x-4">
-            <Button size="sm" onClick={createNewCourse}>
+      <section className="mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+            My Courses
+          </h3>
+          <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
+            <Button
+              size="sm"
+              onClick={createNewCourse}
+              className="flex-grow sm:flex-grow-0"
+            >
               Create Course
             </Button>
-            <Link to="/courses">
-              <GradientButton size="sm">Browse All Courses</GradientButton>
+            <Link to="/courses" className="flex-grow sm:flex-grow-0">
+              <GradientButton size="sm" className="w-full">
+                Browse All Courses
+              </GradientButton>
             </Link>
           </div>
         </div>
@@ -139,7 +147,7 @@ const ProfessorDashboard = () => {
             <Loading size="lg" />
           </div>
         ) : courses.length === 0 ? (
-          <Card className="text-center py-10">
+          <Card className="text-center py-8 sm:py-10">
             <p className="text-gray-600 mb-4">
               You haven't created any courses yet.
             </p>
@@ -148,7 +156,7 @@ const ProfessorDashboard = () => {
             </GradientButton>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {courses.map((course) => (
               <Link
                 key={course.id}
@@ -157,11 +165,11 @@ const ProfessorDashboard = () => {
               >
                 <Card className="h-full hover:shadow-lg transition-shadow">
                   <div className="mb-3">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-semibold text-gray-800 mr-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                      <h4 className="font-semibold text-gray-800 mr-3 mb-1 sm:mb-0 break-words">
                         {course.name}
                       </h4>
-                      <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap">
+                      <span className="inline-flex px-3 py-1 text-xs font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full whitespace-nowrap self-start">
                         {course.term}
                       </span>
                     </div>
@@ -169,7 +177,7 @@ const ProfessorDashboard = () => {
                   </div>
 
                   {course.description && (
-                    <p className="text-gray-600 line-clamp-2 mb-3">
+                    <p className="text-gray-600 text-sm line-clamp-2 mb-3">
                       {course.description}
                     </p>
                   )}
@@ -181,9 +189,9 @@ const ProfessorDashboard = () => {
       </section>
 
       {/* Pending Grading Section */}
-      <section className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">
+      <section className="mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
             Pending Review
           </h3>
           <Link to="/grading">
@@ -196,7 +204,7 @@ const ProfessorDashboard = () => {
             <Loading />
           </div>
         ) : pendingSubmissions.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="text-center py-6 sm:py-8">
             <p className="text-gray-600">
               No submissions requiring your review at this time.
             </p>
@@ -207,19 +215,19 @@ const ProfessorDashboard = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Assignment
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Student
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Submitted
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       AI Score
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Action
                     </th>
                   </tr>
@@ -227,32 +235,32 @@ const ProfessorDashboard = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {pendingSubmissions.map((submission) => (
                     <tr key={submission.id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-800">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="font-medium text-gray-800 truncate max-w-[150px] sm:max-w-none">
                           {submission.assignment_title ||
                             "Assignment Submission"}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-gray-600">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="text-gray-600 truncate max-w-[100px] sm:max-w-none">
                           {submission.student_name || "Student"}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm hidden sm:table-cell">
                         <div className="text-gray-600">
                           {new Date(
                             submission.submission_time
                           ).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm hidden sm:table-cell">
                         <div className="text-gray-600">
                           {submission.feedback?.score !== undefined
                             ? submission.feedback.score
                             : "Pending"}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-right text-sm">
                         <Link to={`/submissions/${submission.id}`}>
                           <Button size="sm">Review</Button>
                         </Link>
@@ -267,9 +275,9 @@ const ProfessorDashboard = () => {
       </section>
 
       {/* Recent Assignments Section */}
-      <section className="mb-10">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">
+      <section className="mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
             Recent Assignments
           </h3>
           <Link to="/assignments">
@@ -282,7 +290,7 @@ const ProfessorDashboard = () => {
             <Loading />
           </div>
         ) : recentAssignments.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="text-center py-6 sm:py-8">
             <p className="text-gray-600 mb-4">
               You haven't created any assignments yet.
             </p>
@@ -291,7 +299,7 @@ const ProfessorDashboard = () => {
             </Link>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {recentAssignments.map((assignment) => (
               <Link
                 key={assignment.id}
@@ -300,7 +308,7 @@ const ProfessorDashboard = () => {
               >
                 <Card className="hover:shadow-md transition-shadow h-full">
                   <div>
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-gray-800 break-words">
                       {assignment.title}
                     </h3>
                     <p className="text-gray-600 text-sm mt-1">
@@ -321,17 +329,17 @@ const ProfessorDashboard = () => {
 
       {/* Quick Links Section */}
       <section>
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
+        <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 sm:mb-6">
           Quick Actions
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           <Link to="/assignments" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-primary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-primary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -349,11 +357,11 @@ const ProfessorDashboard = () => {
           </Link>
 
           <Link to="/grading" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-secondary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-secondary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -371,11 +379,11 @@ const ProfessorDashboard = () => {
           </Link>
 
           <Link to="/courses/new" className="block hover:no-underline">
-            <Card className="text-center py-6 hover:shadow-md transition-shadow h-full">
+            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
               <div className="flex flex-col items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-gradient-tertiary mb-2"
+                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-tertiary mb-2"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

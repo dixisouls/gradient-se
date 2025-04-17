@@ -83,7 +83,7 @@ const SubmissionForm = ({
           type="error"
           message={error}
           onClose={() => setError(null)}
-          className="mb-6"
+          className="mb-4"
         />
       )}
 
@@ -92,16 +92,16 @@ const SubmissionForm = ({
           type="success"
           message={success}
           onClose={() => setSuccess(null)}
-          className="mb-6"
+          className="mb-4"
         />
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-4">
-          <div className="flex space-x-4 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4">
             <button
               type="button"
-              className={`px-4 py-2 rounded-md ${
+              className={`px-3 py-2 rounded-md text-sm ${
                 submittingMethod === "text"
                   ? "bg-gradient-to-r from-gradient-primary to-gradient-secondary text-white"
                   : "bg-gray-100 text-gray-700"
@@ -112,7 +112,7 @@ const SubmissionForm = ({
             </button>
             <button
               type="button"
-              className={`px-4 py-2 rounded-md ${
+              className={`px-3 py-2 rounded-md text-sm ${
                 submittingMethod === "file"
                   ? "bg-gradient-to-r from-gradient-primary to-gradient-secondary text-white"
                   : "bg-gray-100 text-gray-700"
@@ -132,7 +132,7 @@ const SubmissionForm = ({
                 id="submissionText"
                 value={submissionText}
                 onChange={handleSubmissionTextChange}
-                className="input-field font-mono"
+                className="input-field font-mono text-sm"
                 rows="12"
                 placeholder={
                   assignmentType === "code"
@@ -170,8 +170,12 @@ const SubmissionForm = ({
           )}
         </div>
 
-        <div className="flex justify-end space-x-4">
-          <GradientButton type="submit" disabled={loading}>
+        <div className="flex justify-end space-x-3">
+          <GradientButton
+            type="submit"
+            disabled={loading}
+            fullWidth={window.innerWidth < 640}
+          >
             {loading ? "Submitting..." : "Submit Assignment"}
           </GradientButton>
         </div>

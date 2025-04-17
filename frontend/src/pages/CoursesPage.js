@@ -12,13 +12,13 @@ const CoursesPage = () => {
   const isProfessor = currentUser?.role === "professor";
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pt-16 md:pt-4 md:ml-64">
         {isProfessor && showCreateForm ? (
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
               Create New Course
             </h2>
             <CourseForm onCancel={() => setShowCreateForm(false)} />
@@ -26,7 +26,7 @@ const CoursesPage = () => {
         ) : (
           <div>
             {isProfessor && (
-              <div className="mb-6">
+              <div className="mb-4 md:mb-6">
                 <Button onClick={() => setShowCreateForm(true)}>
                   Create New Course
                 </Button>

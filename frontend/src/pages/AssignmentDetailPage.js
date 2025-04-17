@@ -99,9 +99,9 @@ const AssignmentDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8 flex justify-center items-center">
+        <div className="flex-1 p-4 sm:p-8 flex justify-center items-center pt-16 md:pt-4 md:ml-64">
           <Loading size="lg" />
         </div>
       </div>
@@ -110,9 +110,9 @@ const AssignmentDetailPage = () => {
 
   if (error) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message={error} />
           <div className="mt-6">
             <Button onClick={() => navigate("/assignments")}>
@@ -126,9 +126,9 @@ const AssignmentDetailPage = () => {
 
   if (!assignment) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message="Assignment not found" />
           <div className="mt-6">
             <Button onClick={() => navigate("/assignments")}>
@@ -141,11 +141,11 @@ const AssignmentDetailPage = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
-        <div className="mb-6">
+      <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+        <div className="mb-4">
           <Button
             variant="outline"
             size="sm"
@@ -156,67 +156,68 @@ const AssignmentDetailPage = () => {
         </div>
 
         {/* Assignment Details */}
-        <Card gradientBorder className="mb-8">
+        <Card gradientBorder className="mb-6">
           <div className="mb-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">
-                  {assignment.title}
-                </h1>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2 sm:mb-0 break-words">
+                {assignment.title}
+              </h1>
 
-                <div className="flex flex-wrap gap-2 mt-2">
-                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full capitalize">
-                    {assignment.assignment_type}
+              <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full capitalize whitespace-nowrap">
+                  {assignment.assignment_type}
+                </span>
+
+                {isPastDue() ? (
+                  <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full whitespace-nowrap">
+                    Past Due
                   </span>
-
-                  {isPastDue() ? (
-                    <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-                      Past Due
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                      Open
-                    </span>
-                  )}
-                </div>
+                ) : (
+                  <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full whitespace-nowrap">
+                    Open
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {assignment.description && (
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
                 Description
               </h3>
-              <div className="bg-gray-50 p-4 rounded-md">
-                <p className="text-gray-700 whitespace-pre-wrap">
+              <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
+                <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">
                   {assignment.description}
                 </p>
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="bg-gray-50 p-4 rounded-md">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Points Possible</p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 text-sm sm:text-base">
                 {assignment.points_possible}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Due Date</p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 text-sm sm:text-base">
                 {formatDate(assignment.due_date)}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Resubmissions</p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 text-sm sm:text-base">
                 {assignment.allow_resubmissions ? (
                   <>
-                    Allowed until {formatDate(assignment.resubmission_deadline)}
+                    Allowed until{" "}
+                    <span className="whitespace-nowrap">
+                      {formatDate(assignment.resubmission_deadline)}
+                    </span>
                   </>
                 ) : (
                   "Not allowed"
@@ -228,7 +229,10 @@ const AssignmentDetailPage = () => {
           {/* Call to Action Button */}
           {canSubmit() && (
             <div className="mt-6">
-              <GradientButton onClick={() => setShowSubmissionForm(true)}>
+              <GradientButton
+                onClick={() => setShowSubmissionForm(true)}
+                fullWidth={window.innerWidth < 640}
+              >
                 {submissions.length > 0
                   ? "Submit New Attempt"
                   : "Submit Assignment"}
@@ -237,8 +241,8 @@ const AssignmentDetailPage = () => {
           )}
 
           {isPastDue() && !canSubmit() && !isProfessor && (
-            <div className="bg-red-50 border border-red-200 p-4 rounded-md mt-6">
-              <p className="text-red-800">
+            <div className="bg-red-50 border border-red-200 p-3 sm:p-4 rounded-md mt-6">
+              <p className="text-red-800 text-sm sm:text-base">
                 This assignment is past due and no longer accepting submissions.
               </p>
             </div>
@@ -247,7 +251,7 @@ const AssignmentDetailPage = () => {
 
         {/* Submission Form */}
         {showSubmissionForm && (
-          <div className="mb-8">
+          <div className="mb-6">
             <SubmissionForm
               assignmentId={id}
               assignmentType={assignment.assignment_type}
@@ -267,7 +271,7 @@ const AssignmentDetailPage = () => {
 
         {/* Submissions List */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
             {isProfessor ? "Student Submissions" : "Your Submissions"}
           </h2>
 

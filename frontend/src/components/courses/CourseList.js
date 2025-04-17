@@ -84,21 +84,23 @@ const CourseList = () => {
 
   return (
     <div>
-      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Courses</h2>
+      <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+        <div className="mb-4 md:mb-0">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-1 md:mb-2">
+            Courses
+          </h2>
           <p className="text-gray-600">
             {totalCourses} {totalCourses === 1 ? "course" : "courses"} available
           </p>
         </div>
 
-        <div className="mt-4 md:mt-0 flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
           {terms.length > 0 && (
-            <div>
+            <div className="w-full sm:w-auto">
               <select
                 value={currentTerm}
                 onChange={handleTermChange}
-                className="input-field"
+                className="input-field w-full"
               >
                 <option value="">All Terms</option>
                 {terms.map((term) => (
@@ -111,8 +113,12 @@ const CourseList = () => {
           )}
 
           {isProfessor && (
-            <div>
-              <GradientButton onClick={handleSeedCourses} disabled={loading}>
+            <div className="w-full sm:w-auto">
+              <GradientButton
+                onClick={handleSeedCourses}
+                disabled={loading}
+                className="w-full sm:w-auto"
+              >
                 Seed Courses
               </GradientButton>
             </div>
@@ -130,7 +136,7 @@ const CourseList = () => {
       )}
 
       {courses.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 text-center">
           <p className="text-gray-600 mb-4">
             No courses available for the selected term.
           </p>
@@ -141,7 +147,7 @@ const CourseList = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {courses.map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}

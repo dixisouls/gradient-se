@@ -41,9 +41,9 @@ const CourseDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8 flex justify-center items-center">
+        <div className="flex-1 p-4 sm:p-8 flex justify-center items-center pt-16 md:pt-4 md:ml-64">
           <Loading size="lg" />
         </div>
       </div>
@@ -52,9 +52,9 @@ const CourseDetailPage = () => {
 
   if (error) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message={error} />
           <div className="mt-6">
             <Button onClick={() => navigate("/courses")}>
@@ -68,9 +68,9 @@ const CourseDetailPage = () => {
 
   if (!course) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
           <Alert type="error" message="Course not found" />
           <div className="mt-6">
             <Button onClick={() => navigate("/courses")}>
@@ -84,10 +84,12 @@ const CourseDetailPage = () => {
 
   if (showEditForm && isProfessor) {
     return (
-      <div className="flex">
+      <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Edit Course</h2>
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
+            Edit Course
+          </h2>
           <CourseForm courseId={id} onCancel={() => setShowEditForm(false)} />
         </div>
       </div>
@@ -95,11 +97,11 @@ const CourseDetailPage = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-8">
-        <div className="mb-6 flex justify-between items-center">
+      <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+        <div className="mb-4 md:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
           <div>
             <Button
               variant="outline"
@@ -115,13 +117,13 @@ const CourseDetailPage = () => {
           )}
         </div>
 
-        <Card gradientBorder className="mb-8">
+        <Card gradientBorder className="mb-6 md:mb-8">
           <div className="mb-4">
-            <div className="flex justify-between">
-              <h1 className="text-3xl font-bold text-gray-800">
+            <div className="flex flex-col sm:flex-row sm:justify-between">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2 sm:mb-0 break-words">
                 {course.name}
               </h1>
-              <span className="px-4 py-1 text-sm font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full">
+              <span className="px-3 py-1 text-sm font-medium text-white bg-gradient-to-r from-gradient-primary to-gradient-secondary rounded-full self-start">
                 {course.term}
               </span>
             </div>
@@ -137,37 +139,43 @@ const CourseDetailPage = () => {
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-gray-50 p-4 rounded-md">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Created</p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 text-sm md:text-base">
                 {new Date(course.created_at).toLocaleDateString()}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Last Updated</p>
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-800 text-sm md:text-base">
                 {new Date(course.updated_at).toLocaleDateString()}
               </p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Students</p>
-              <p className="font-medium text-gray-800">42</p>
+              <p className="font-medium text-gray-800 text-sm md:text-base">
+                42
+              </p>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
+            <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
               <p className="text-sm text-gray-500">Assignments</p>
-              <p className="font-medium text-gray-800">5</p>
+              <p className="font-medium text-gray-800 text-sm md:text-base">
+                5
+              </p>
             </div>
           </div>
         </Card>
 
         {/* Assignments Section */}
-        <section className="mb-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Assignments</h2>
+        <section className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-3 sm:space-y-0">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+              Assignments
+            </h2>
 
             {isProfessor && <Button size="sm">Add Assignment</Button>}
           </div>
@@ -230,19 +238,21 @@ const CourseDetailPage = () => {
 
         {/* Resources Section */}
         <section>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-800">Resources</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-3 sm:space-y-0">
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800">
+              Resources
+            </h2>
 
             {isProfessor && <Button size="sm">Add Resource</Button>}
           </div>
 
           {/* Sample resources - would be populated from actual backend data */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card className="hover:shadow-md transition-shadow">
               <div className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gradient-primary mr-3"
+                  className="h-6 w-6 sm:h-8 sm:w-8 text-gradient-primary mr-3"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -265,7 +275,7 @@ const CourseDetailPage = () => {
               <div className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gradient-secondary mr-3"
+                  className="h-6 w-6 sm:h-8 sm:w-8 text-gradient-secondary mr-3"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -288,7 +298,7 @@ const CourseDetailPage = () => {
               <div className="flex items-center">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 text-gradient-tertiary mr-3"
+                  className="h-6 w-6 sm:h-8 sm:w-8 text-gradient-tertiary mr-3"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
