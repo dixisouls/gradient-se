@@ -119,11 +119,27 @@ const AssignmentForm = ({ courseId, assignmentId = null, onCancel }) => {
       return;
     }
 
+    // Validate that resubmission deadline is after due date
+    if (formData.allow_resubmissions && formData.resubmission_deadline) {
+      const dueDate = new Date(formData.due_date);
+      const resubDate = new Date(formData.resubmission_deadline);
+
+      if (resubDate <= dueDate) {
+        setError("Resubmission deadline must be after the due date");
+        return;
+      }
+    }
+
     try {
       setLoading(true);
 
-      // Prepare data
+      // Prepare data - Create a copy of the form data
       const assignmentData = { ...formData };
+
+      // If resubmissions are not allowed, remove the resubmission_deadline field entirely
+      if (!assignmentData.allow_resubmissions) {
+        delete assignmentData.resubmission_deadline;
+      }
 
       if (isEditing) {
         await assignmentService.updateAssignment(

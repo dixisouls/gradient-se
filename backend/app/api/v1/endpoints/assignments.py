@@ -220,11 +220,18 @@ async def create_assignment(
             )
     
     # Check resubmission deadline if applicable
-    if allow_resubmissions and not resubmission_deadline:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Resubmission deadline is required when resubmissions are allowed"
-        )
+    if allow_resubmissions:
+        if not resubmission_deadline:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Resubmission deadline is required when resubmissions are allowed"
+            )
+        # Ensure resubmission deadline is after due date
+        if resubmission_deadline <= due_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Resubmission deadline must be after the due date"
+            )
     
     # Handle reference solution file if provided
     reference_solution_file_path = None
@@ -249,7 +256,7 @@ async def create_assignment(
         due_date=due_date,
         points_possible=points_possible,
         allow_resubmissions=allow_resubmissions,
-        resubmission_deadline=resubmission_deadline,
+        resubmission_deadline=resubmission_deadline if allow_resubmissions else None,
         created_by=current_user.id,
         reference_solution=reference_solution,
         reference_solution_file_path=reference_solution_file_path
@@ -326,6 +333,30 @@ async def update_assignment(
                 detail="You don't have permission to update assignments for this course"
             )
     
+    # Check if we're updating resubmission settings
+    new_allow_resubmissions = allow_resubmissions if allow_resubmissions is not None else assignment.allow_resubmissions
+    new_due_date = due_date if due_date is not None else assignment.due_date
+    
+    # If allowing resubmissions, ensure resubmission deadline is valid
+    if new_allow_resubmissions:
+        new_resubmission_deadline = resubmission_deadline if resubmission_deadline is not None else assignment.resubmission_deadline
+        
+        if not new_resubmission_deadline:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Resubmission deadline is required when resubmissions are allowed"
+            )
+        
+        # Check that resubmission deadline is after due date
+        if new_resubmission_deadline <= new_due_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Resubmission deadline must be after the due date"
+            )
+    else:
+        # If not allowing resubmissions, set resubmission_deadline to None
+        new_resubmission_deadline = None
+    
     # Handle reference solution file if provided
     reference_solution_file_path = None
     if reference_solution_file:
@@ -353,8 +384,10 @@ async def update_assignment(
         assignment.points_possible = points_possible
     if allow_resubmissions is not None:
         assignment.allow_resubmissions = allow_resubmissions
-    if resubmission_deadline is not None:
-        assignment.resubmission_deadline = resubmission_deadline
+    
+    # Update resubmission deadline based on the allow_resubmissions flag
+    assignment.resubmission_deadline = new_resubmission_deadline
+    
     if reference_solution is not None:
         assignment.reference_solution = reference_solution
     if reference_solution_file_path is not None:
@@ -434,4 +467,4 @@ def delete_assignment(
     db.delete(assignment)
     db.commit()
     
-    return  
+    return
