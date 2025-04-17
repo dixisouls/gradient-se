@@ -33,7 +33,7 @@ const CoursesPage = () => {
     <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pt-16 md:pt-4 md:ml-64">
+      <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pt-16 md:pt-4">
         {isProfessor && showCreateForm ? (
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">

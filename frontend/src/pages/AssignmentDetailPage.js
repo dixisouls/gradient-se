@@ -101,7 +101,7 @@ const AssignmentDetailPage = () => {
     return (
       <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-4 sm:p-8 flex justify-center items-center pt-16 md:pt-4 md:ml-64">
+        <div className="flex-1 p-4 sm:p-8 flex justify-center items-center pt-16 md:pt-4">
           <Loading size="lg" />
         </div>
       </div>
@@ -112,7 +112,7 @@ const AssignmentDetailPage = () => {
     return (
       <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4">
           <Alert type="error" message={error} />
           <div className="mt-6">
             <Button onClick={() => navigate("/assignments")}>
@@ -128,7 +128,7 @@ const AssignmentDetailPage = () => {
     return (
       <div className="flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+        <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4">
           <Alert type="error" message="Assignment not found" />
           <div className="mt-6">
             <Button onClick={() => navigate("/assignments")}>
@@ -144,7 +144,7 @@ const AssignmentDetailPage = () => {
     <div className="flex flex-col md:flex-row">
       <Sidebar />
 
-      <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4 md:ml-64">
+      <div className="flex-1 p-4 sm:p-8 pt-16 md:pt-4">
         <div className="mb-4">
           <Button
             variant="outline"
