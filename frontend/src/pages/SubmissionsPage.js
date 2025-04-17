@@ -88,28 +88,33 @@ const SubmissionsPage = () => {
           (sub) => sub.assignment_id === parseInt(selectedAssignment)
         );
 
+  // Format date for better display
+  const formatDate = (dateStr) => {
+    return new Date(dateStr).toLocaleDateString();
+  };
+
   return (
     <div className="flex">
       <Sidebar />
 
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">
           My Submissions
         </h1>
 
         {/* Filter Section */}
-        <Card className="mb-8">
+        <Card className="mb-6">
           <div className="flex flex-col sm:flex-row items-center justify-between">
-            <div className="mb-4 sm:mb-0">
+            <div className="mb-4 sm:mb-0 w-full sm:w-auto">
               <h3 className="text-lg font-semibold text-gray-800">
                 Filter Submissions
               </h3>
             </div>
-            <div>
+            <div className="w-full sm:w-auto">
               <select
                 value={selectedAssignment}
                 onChange={(e) => setSelectedAssignment(e.target.value)}
-                className="input-field min-w-[200px]"
+                className="input-field w-full sm:w-auto min-w-[200px]"
               >
                 <option value="all">All Assignments</option>
                 {assignments.map((assignment) => (
@@ -122,7 +127,7 @@ const SubmissionsPage = () => {
           </div>
         </Card>
 
-        {/* Submissions List */}
+        {/* Submissions List - Now with responsive cards for mobile */}
         {loading ? (
           <div className="flex justify-center py-10">
             <Loading size="lg" />
@@ -141,76 +146,128 @@ const SubmissionsPage = () => {
             </Button>
           </Card>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Assignment
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Submitted
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Score
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredSubmissions.map((submission) => (
-                  <tr key={submission.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-800">
-                        {submission.assignment_title || "Assignment Submission"}
+          <div>
+            {/* Hide table on mobile, show cards instead */}
+            <div className="hidden md:block">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Assignment
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Submitted
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Score
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredSubmissions.map((submission) => (
+                    <tr key={submission.id}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-800">
+                          {submission.assignment_title ||
+                            "Assignment Submission"}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Attempt #{submission.attempt_number}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-gray-600">
+                          {formatDate(submission.submission_time)}
+                          {submission.is_late && (
+                            <span className="ml-2 text-xs text-red-600 font-medium">
+                              (Late)
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {getStatusBadge(submission.status)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-gray-600">
+                          {submission.feedback?.score !== undefined ? (
+                            <span className="font-medium">
+                              {submission.feedback.score}
+                            </span>
+                          ) : (
+                            <span className="text-gray-500">Pending</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <Button
+                          size="sm"
+                          onClick={() => handleViewSubmission(submission.id)}
+                        >
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile view - Cards instead of table */}
+            <div className="md:hidden space-y-4">
+              {filteredSubmissions.map((submission) => (
+                <Card key={submission.id} className="hover:shadow-md">
+                  <div className="flex flex-col">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h3 className="font-medium text-gray-800">
+                          {submission.assignment_title ||
+                            "Assignment Submission"}
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                          Attempt #{submission.attempt_number}
+                        </p>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        Attempt #{submission.attempt_number}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(submission.status)}
+                    </div>
+
+                    <div className="flex justify-between items-center text-sm mb-3">
                       <div className="text-gray-600">
-                        {new Date(
-                          submission.submission_time
-                        ).toLocaleDateString()}
+                        <span>
+                          Submitted: {formatDate(submission.submission_time)}
+                        </span>
                         {submission.is_late && (
                           <span className="ml-2 text-xs text-red-600 font-medium">
                             (Late)
                           </span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(submission.status)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-gray-600">
+                      <div className="text-gray-700 font-medium">
                         {submission.feedback?.score !== undefined ? (
-                          <span className="font-medium">
-                            {submission.feedback.score}
-                          </span>
+                          <span>Score: {submission.feedback.score}</span>
                         ) : (
                           <span className="text-gray-500">Pending</span>
                         )}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <Button
-                        size="sm"
-                        onClick={() => handleViewSubmission(submission.id)}
-                      >
-                        View
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      onClick={() => handleViewSubmission(submission.id)}
+                      fullWidth
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
         )}
       </div>

@@ -1,15 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import CourseList from "../components/courses/CourseList";
 import CourseForm from "../components/courses/CourseForm";
 import Sidebar from "../components/layout/Sidebar";
-import Button from "../components/common/Button";
+import GradientButton from "../components/common/GradientButton";
 
 const CoursesPage = () => {
   const { currentUser } = useAuth();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [isButtonReady, setIsButtonReady] = useState(false);
 
   const isProfessor = currentUser?.role === "professor";
+
+  // Ensure button is ready after component mounts
+  useEffect(() => {
+    setIsButtonReady(true);
+  }, []);
+
+  const handleCreateCourse = (e) => {
+    // Prevent any default behavior
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Log for debugging
+    console.log("Create course button clicked");
+
+    // Update state to show form
+    setShowCreateForm(true);
+  };
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -25,11 +43,14 @@ const CoursesPage = () => {
           </div>
         ) : (
           <div>
-            {isProfessor && (
+            {isProfessor && isButtonReady && (
               <div className="mb-4 md:mb-6">
-                <Button onClick={() => setShowCreateForm(true)}>
+                <GradientButton
+                  onClick={handleCreateCourse}
+                  className="w-auto px-6 py-2 text-base"
+                >
                   Create New Course
-                </Button>
+                </GradientButton>
               </div>
             )}
 

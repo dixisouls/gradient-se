@@ -137,7 +137,9 @@ const StudentDashboard = () => {
           <div className="flex flex-wrap gap-3">
             {/* New Course Registration Button */}
             <Link to="/course-registration">
-              <Button className="w-full sm:w-auto">Register for Courses</Button>
+              <GradientButton size="sm" className="w-full sm:w-auto">
+                Register for Courses
+              </GradientButton>
             </Link>
             <Link to="/courses">
               <GradientButton size="sm" className="w-full sm:w-auto">
