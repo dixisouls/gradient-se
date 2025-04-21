@@ -44,7 +44,7 @@ const Footer = () => {
 
           <div className="text-center md:text-left">
             <h4 className="text-lg font-medium mb-4">Contact</h4>
-            <p className="text-gray-300 mb-2">San Francisco State University</p>
+            <p className="text-gray-300 mb-2">GRADiEnt University</p>
             <p className="text-gray-300 mb-2">Department of Computer Science</p>
             <p className="text-gray-300">Email: info@gradient.edu</p>
           </div>
