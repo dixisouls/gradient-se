@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import ChatIcon from "./ChatIcon";
 import ChatWindow from "./ChatWindow";
 import "../../styles/scrollbar.css";
+import "../../styles/chat.css";
 
 const Chat = () => {
   const { currentUser } = useAuth();
@@ -41,6 +42,10 @@ const Chat = () => {
     }
   };
 
+  const closeChat = () => {
+    setIsOpen(false);
+  };
+
   // Render nothing if user is not logged in
   if (!currentUser) {
     return null;
@@ -52,7 +57,7 @@ const Chat = () => {
         <div className="fixed bottom-20 right-6 w-3 h-3 bg-red-500 rounded-full z-50 animate-pulse"></div>
       )}
       <ChatIcon onClick={toggleChat} isOpen={isOpen} />
-      <ChatWindow isOpen={isOpen} />
+      <ChatWindow isOpen={isOpen} onClose={closeChat} />
     </>
   );
 };

@@ -46,4 +46,7 @@ code {
     @apply text-xl font-semibold mb-4 text-gray-800;
   }
 }
+
+/* Import scrollbar styles */
 @import "./styles/scrollbar.css";
+@import "./styles/chat.css";
