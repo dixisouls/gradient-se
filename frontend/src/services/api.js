@@ -13,7 +13,8 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    if (token) {
+    // Only add token if it exists and the request is not to a guest endpoint
+    if (token && !config.url.includes("/guest")) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
@@ -31,8 +32,15 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If the error is 401 and not already retrying
-    if (error.response.status === 401 && !originalRequest._retry) {
+    // Check if this is a request to the guest chat endpoint
+    const isGuestChatRequest = originalRequest.url.includes("/chat/guest");
+
+    // If the error is 401 and not already retrying and not a guest chat request
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isGuestChatRequest
+    ) {
       originalRequest._retry = true;
 
       try {

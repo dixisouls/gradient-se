@@ -42,11 +42,6 @@ class ChatService:
                 parts=[
                     types.Part.from_text(
                         text="""SYSTEM PROMPT:
-
-SYSTEM PROMPT:
-
-SYSTEM PROMPT:
-
 You are Neuron, an AI assistant specifically designed to help students navigate and use the GRADiEnt learning platform. 
 
 GRADiEnt is an educational platform that:

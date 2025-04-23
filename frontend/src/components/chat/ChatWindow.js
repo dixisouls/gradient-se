@@ -1,18 +1,31 @@
 import React, { useState, useRef, useEffect } from "react";
 import chatService from "../../services/chatService";
 
-const ChatWindow = ({ isOpen, onClose }) => {
+const ChatWindow = ({ isOpen, onClose, isPreLogin = false }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
     {
       type: "assistant",
-      content:
-        "Hi there! I'm Neuron. How can I help you with your studies today?",
+      content: isPreLogin
+        ? "Hi there! I'm Neuron. I can help answer questions about GRADiEnt. How can I help you today?"
+        : "Hi there! I'm Neuron. How can I help you with your studies today?",
     },
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const chatContainerRef = useRef(null);
   const messageInputRef = useRef(null);
+
+  // Update welcome message when login state changes
+  useEffect(() => {
+    setMessages([
+      {
+        type: "assistant",
+        content: isPreLogin
+          ? "Hi there! I'm Neuron. I can help answer questions about GRADiEnt. How can I help you today?"
+          : "Hi there! I'm Neuron. How can I help you with your studies today?",
+      },
+    ]);
+  }, [isPreLogin]);
 
   // Focus on input when chat window opens
   useEffect(() => {
@@ -46,7 +59,9 @@ const ChatWindow = ({ isOpen, onClose }) => {
     setIsTyping(true);
 
     try {
-      const result = await chatService.sendMessage(userMessage);
+      // Use different endpoint based on login state
+      const endpoint = isPreLogin ? "chat/guest" : "chat";
+      const result = await chatService.sendMessage(userMessage, endpoint);
 
       // Add AI response
       setMessages((prev) => [
@@ -172,7 +187,9 @@ const ChatWindow = ({ isOpen, onClose }) => {
             </div>
             <div className="ml-3">
               <div className="font-bold text-gray-800">Neuron</div>
-              <div className="text-xs text-gray-500">AI Study Assistant</div>
+              <div className="text-xs text-gray-500">
+                {isPreLogin ? "AI Assistant" : "AI Study Assistant"}
+              </div>
             </div>
           </div>
 
@@ -310,28 +327,57 @@ const ChatWindow = ({ isOpen, onClose }) => {
 
         {/* Message suggestions */}
         <div className="bg-white px-5 py-3 flex overflow-x-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-300 hide-scrollbar">
-          <button
-            className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
-            onClick={() =>
-              setMessage("Can you help me understand neural networks?")
-            }
-          >
-            Neural networks
-          </button>
-          <button
-            className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
-            onClick={() => setMessage("How do I solve quadratic equations?")}
-          >
-            Quadratic equations
-          </button>
-          <button
-            className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap hover:bg-blue-100 transition-colors"
-            onClick={() =>
-              setMessage("Explain the concept of reinforcement learning")
-            }
-          >
-            Reinforcement learning
-          </button>
+          {isPreLogin ? (
+            // Pre-login suggestions
+            <>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
+                onClick={() => setMessage("What features does GRADiEnt offer?")}
+              >
+                GRADiEnt features
+              </button>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
+                onClick={() => setMessage("How do I register for an account?")}
+              >
+                Registration
+              </button>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap hover:bg-blue-100 transition-colors"
+                onClick={() => setMessage("What courses are available?")}
+              >
+                Available courses
+              </button>
+            </>
+          ) : (
+            // Post-login suggestions
+            <>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
+                onClick={() =>
+                  setMessage("Can you help me understand neural networks?")
+                }
+              >
+                Neural networks
+              </button>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap mr-2 hover:bg-blue-100 transition-colors"
+                onClick={() =>
+                  setMessage("How do I solve quadratic equations?")
+                }
+              >
+                Quadratic equations
+              </button>
+              <button
+                className="flex-shrink-0 text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-full border border-blue-100 whitespace-nowrap hover:bg-blue-100 transition-colors"
+                onClick={() =>
+                  setMessage("Explain the concept of reinforcement learning")
+                }
+              >
+                Reinforcement learning
+              </button>
+            </>
+          )}
         </div>
 
         {/* Chat input */}

@@ -9,20 +9,16 @@ const Chat = () => {
   const { currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
+  const [isPreLogin, setIsPreLogin] = useState(!currentUser);
 
-  // Close chat when user logs out
+  // Update pre-login state when auth changes
   useEffect(() => {
-    if (!currentUser) {
-      setIsOpen(false);
-    }
+    setIsPreLogin(!currentUser);
   }, [currentUser]);
 
   // For real implementation, you'd set hasUnreadMessages when new messages arrive
   // This is just for demonstration purposes
   useEffect(() => {
-    // Only run timer if user is logged in
-    if (!currentUser) return;
-
     // Simulate a new message after 1 minute if chat is closed
     const timer = setTimeout(() => {
       if (!isOpen) {
@@ -31,11 +27,9 @@ const Chat = () => {
     }, 60000);
 
     return () => clearTimeout(timer);
-  }, [isOpen, currentUser]);
+  }, [isOpen]);
 
   const toggleChat = () => {
-    if (!currentUser) return;
-
     setIsOpen(!isOpen);
     if (isOpen === false) {
       setHasUnreadMessages(false);
@@ -46,18 +40,13 @@ const Chat = () => {
     setIsOpen(false);
   };
 
-  // Render nothing if user is not logged in
-  if (!currentUser) {
-    return null;
-  }
-
   return (
     <>
       {hasUnreadMessages && !isOpen && (
         <div className="fixed bottom-20 right-6 w-3 h-3 bg-red-500 rounded-full z-50 animate-pulse"></div>
       )}
       <ChatIcon onClick={toggleChat} isOpen={isOpen} />
-      <ChatWindow isOpen={isOpen} onClose={closeChat} />
+      <ChatWindow isOpen={isOpen} onClose={closeChat} isPreLogin={isPreLogin} />
     </>
   );
 };

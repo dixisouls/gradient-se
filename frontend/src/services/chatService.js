@@ -2,9 +2,9 @@ import api from "./api";
 
 const chatService = {
   // Send a prompt to the chat API and get a response
-  sendMessage: async (prompt) => {
+  sendMessage: async (prompt, endpoint = "chat") => {
     try {
-      const response = await api.post("/chat", {
+      const response = await api.post(endpoint, {
         prompt: prompt,
       });
       return response.data;
