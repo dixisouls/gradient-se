@@ -187,18 +187,13 @@ const SubmissionDetail = ({ submission, onRegrade, onAccept }) => {
       )}
 
       {/* Action Buttons */}
+      {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-4">
         <Link to=".." className="w-full sm:w-auto">
           <Button variant="outline" fullWidth={window.innerWidth < 640}>
             Back
           </Button>
         </Link>
-
-        {submission.feedback && (
-          <GradientButton fullWidth={window.innerWidth < 640}>
-            Download Feedback
-          </GradientButton>
-        )}
       </div>
     </Card>
   );
