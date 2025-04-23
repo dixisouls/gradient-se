@@ -8,7 +8,7 @@ from enum import Enum
 
 class SubmissionStatus(str, Enum):
     """Submission status enum."""
-    
+
     SUBMITTED = "submitted"
     GRADED = "graded"
     ACCEPTED = "accepted"
@@ -17,7 +17,7 @@ class SubmissionStatus(str, Enum):
 
 class GradingFeedback(BaseModel):
     """Grading feedback model."""
-    
+
     overall_assessment: str
     improvement_suggestions: List[str]
     score: float
@@ -27,7 +27,7 @@ class GradingFeedback(BaseModel):
 
 class SubmissionCreate(BaseModel):
     """Submission creation model."""
-    
+
     assignment_id: int
     submission_text: Optional[str] = None
     # Note: file upload will be handled separately
@@ -35,7 +35,7 @@ class SubmissionCreate(BaseModel):
 
 class SubmissionResponse(BaseModel):
     """Submission response model."""
-    
+
     id: int
     assignment_id: int
     assignment_title: Optional[str] = None
@@ -51,21 +51,21 @@ class SubmissionResponse(BaseModel):
     attempt_number: int
     status: str
     feedback: Optional[GradingFeedback] = None
-    
+
     class Config:
         """Config for the model."""
-        
+
         from_attributes = True
 
 
 class SubmissionGradingRequest(BaseModel):
     """Request model for manually grading a submission."""
-    
+
     strictness: str = "Medium"  # Easy, Medium, or Strict
 
 
 class SubmissionList(BaseModel):
     """Submission list model."""
-    
+
     submissions: List[SubmissionResponse]
     total: int

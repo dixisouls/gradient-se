@@ -22,6 +22,7 @@ import AboutUsPage from "./pages/AboutUsPage";
 // Components
 import Header from "./components/layout/Header";
 import Footer from "./components/layout/Footer";
+import Chat from "./components/chat/Chat";
 
 // Route protection component
 const ProtectedRoute = ({ children }) => {
@@ -144,6 +145,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <Chat />
       </div>
     </AuthProvider>
   );

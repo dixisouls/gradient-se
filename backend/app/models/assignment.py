@@ -7,7 +7,7 @@ from datetime import datetime
 
 class AssignmentBase(BaseModel):
     """Base assignment model."""
-    
+
     title: str
     description: Optional[str] = None
     assignment_type: str
@@ -20,14 +20,14 @@ class AssignmentBase(BaseModel):
 
 class AssignmentCreate(AssignmentBase):
     """Assignment creation model."""
-    
+
     course_id: int
     created_by: Optional[int] = None
 
 
 class AssignmentUpdate(BaseModel):
     """Assignment update model."""
-    
+
     title: Optional[str] = None
     description: Optional[str] = None
     assignment_type: Optional[str] = None
@@ -40,7 +40,7 @@ class AssignmentUpdate(BaseModel):
 
 class AssignmentResponse(AssignmentBase):
     """Assignment response model."""
-    
+
     id: int
     course_id: int
     course_name: Optional[str] = None
@@ -48,15 +48,15 @@ class AssignmentResponse(AssignmentBase):
     created_by: int
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         """Config for the model."""
-        
+
         from_attributes = True
 
 
 class AssignmentList(BaseModel):
     """Assignment list model."""
-    
+
     assignments: List[AssignmentResponse]
     total: int

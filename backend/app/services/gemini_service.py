@@ -15,38 +15,39 @@ class GeminiService:
         if not api_key:
             raise ValueError("GOOGLE_API_KEY environment variable not set")
         self.client = genai.Client(api_key=api_key)
-    
+
     def grade_submission(
-        self, 
-        student_submission: str, 
-        reference_solution: Optional[str] = None, 
+        self,
+        student_submission: str,
+        reference_solution: Optional[str] = None,
         grading_rubric: Optional[str] = None,
         total_points: int = 100,
-        strictness: str = "Medium"
+        strictness: str = "Medium",
     ) -> Dict[str, Any]:
-        model = "gemini-2.0-flash" 
-        
+        model = "gemini-2.0-flash"
+
         # Prepare the prompt with appropriate formatting
         prompt_data = {
             "student_submission": student_submission,
             "total_points_possible": total_points,
-            "grading_strictness": strictness
+            "grading_strictness": strictness,
         }
-        
+
         # Add optional components if provided
         if reference_solution:
             prompt_data["reference_solution"] = reference_solution
         if grading_rubric:
             prompt_data["grading_rubric"] = grading_rubric
-            
+
         prompt_json = json.dumps(prompt_data)
-        
+
         # Create conversation with system prompt
         contents = [
             types.Content(
                 role="user",
                 parts=[
-                    types.Part.from_text(text="""You are GradingAssistant, an AI that evaluates coding assignments. Your task is to provide concise, helpful feedback on student code submissions based on the following inputs:
+                    types.Part.from_text(
+                        text="""You are GradingAssistant, an AI that evaluates coding assignments. Your task is to provide concise, helpful feedback on student code submissions based on the following inputs:
 
 ## Input Components:
 1. **Student Code Submission** (required)
@@ -85,13 +86,15 @@ IMPORTANT: Try to match it with the reference solution, sometimes the code might
 
 Maintain a constructive, educational tone that helps students improve while providing fair evaluation.
 Return only one feedback for each submission.
-The input will be provided to you in json form maintaining the input structure given above."""),
+The input will be provided to you in json form maintaining the input structure given above."""
+                    ),
                 ],
             ),
             types.Content(
                 role="model",
                 parts=[
-                    types.Part.from_text(text="""{
+                    types.Part.from_text(
+                        text="""{
   \"overall_assessment\": \"The submission demonstrates a good understanding of the core logic required to solve the problem. The code appears functional, but may benefit from minor adjustments to enhance efficiency and readability, aligning it closer to the reference solution.\",
   \"improvement_suggestions\": [
     \"Consider restructuring the conditional logic (e.g., if/else statements) to mirror the order in the reference solution. This might improve maintainability. Refer to lines [relevant line numbers].\",
@@ -101,7 +104,8 @@ The input will be provided to you in json form maintaining the input structure g
   ],
   \"score\": 0,
   \"similarity_score\": 0
-}"""),
+}"""
+                    ),
                 ],
             ),
             types.Content(
@@ -111,11 +115,11 @@ The input will be provided to you in json form maintaining the input structure g
                 ],
             ),
         ]
-        
+
         generate_content_config = types.GenerateContentConfig(
             response_mime_type="application/json",
         )
-        
+
         try:
             response = self.client.models.generate_content(
                 model=model,
@@ -130,8 +134,10 @@ The input will be provided to you in json form maintaining the input structure g
             print(f"Error generating content: {e}")
             return {
                 "overall_assessment": "Error generating feedback.",
-                "improvement_suggestions": ["There was an error generating feedback. Please try again later."],
+                "improvement_suggestions": [
+                    "There was an error generating feedback. Please try again later."
+                ],
                 "score": 0,
                 "similarity_score": 0 if reference_solution else None,
-                "error": str(e)
+                "error": str(e),
             }
