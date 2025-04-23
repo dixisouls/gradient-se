@@ -1,8 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import TermsModal from "../modals/TermsModal";
+import PrivacyModal from "../modals/PrivacyModal";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   return (
     <footer className="bg-gray-800 text-white mt-auto">
@@ -27,17 +31,20 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/courses" className="text-gray-300 hover:text-white">
-                  Courses
-                </Link>
+                <button
+                  onClick={() => setShowTermsModal(true)}
+                  className="text-gray-300 hover:text-white bg-transparent border-none p-0 cursor-pointer"
+                >
+                  Terms of Service
+                </button>
               </li>
               <li>
-                <Link
-                  to="/dashboard"
-                  className="text-gray-300 hover:text-white"
+                <button
+                  onClick={() => setShowPrivacyModal(true)}
+                  className="text-gray-300 hover:text-white bg-transparent border-none p-0 cursor-pointer"
                 >
-                  Dashboard
-                </Link>
+                  Privacy Policy
+                </button>
               </li>
             </ul>
           </div>
@@ -54,6 +61,18 @@ const Footer = () => {
           <p>&copy; {currentYear} GRADiEnt. All rights reserved.</p>
         </div>
       </div>
+
+      {/* Terms of Service Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+      />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </footer>
   );
 };
