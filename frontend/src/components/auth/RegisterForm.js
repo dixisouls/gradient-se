@@ -4,6 +4,8 @@ import { useAuth } from "../../context/AuthContext";
 import Alert from "../common/Alert";
 import Button from "../common/Button";
 import GradientButton from "../common/GradientButton";
+import TermsModal from "../modals/TermsModal";
+import PrivacyModal from "../modals/PrivacyModal";
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +21,9 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -31,6 +36,10 @@ const RegisterForm = () => {
     });
   };
 
+  const handleCheckboxChange = (e) => {
+    setAgreeToTerms(e.target.checked);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
@@ -38,6 +47,13 @@ const RegisterForm = () => {
 
     if (formData.password !== formData.confirm_password) {
       setErrorMessage("Passwords do not match");
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setErrorMessage(
+        "You must agree to the Terms of Service and Privacy Policy to create an account"
+      );
       return;
     }
 
@@ -217,10 +233,60 @@ const RegisterForm = () => {
                 </label>
               </div>
             </div>
+
+            <div className="md:col-span-2 mt-4">
+              <div className="flex items-start p-4 bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 rounded-lg border border-gradient-primary/20">
+                <div className="relative flex items-start">
+                  <div className="flex items-center h-5">
+                    <input
+                      id="terms"
+                      name="terms"
+                      type="checkbox"
+                      checked={agreeToTerms}
+                      onChange={handleCheckboxChange}
+                      className="h-5 w-5 text-gradient-primary focus:ring-gradient-secondary rounded border-gray-300 cursor-pointer"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
+                  <div className="ml-3 text-sm">
+                    <label
+                      htmlFor="terms"
+                      className="font-medium text-gray-700 cursor-pointer"
+                    >
+                      I agree to the{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowTermsModal(true)}
+                        className="text-gradient-primary hover:text-gradient-secondary underline font-semibold"
+                      >
+                        Terms of Service
+                      </button>{" "}
+                      and{" "}
+                      <button
+                        type="button"
+                        onClick={() => setShowPrivacyModal(true)}
+                        className="text-gradient-primary hover:text-gradient-secondary underline font-semibold"
+                      >
+                        Privacy Policy
+                      </button>
+                    </label>
+                    <p className="text-gray-500 mt-1">
+                      By creating an account, you acknowledge that you have read
+                      and understood our policies.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="mt-6 sm:mt-8">
-            <GradientButton type="submit" fullWidth disabled={loading}>
+            <GradientButton
+              type="submit"
+              fullWidth
+              disabled={loading || !agreeToTerms}
+            >
               {loading ? "Creating Account..." : "Create Account"}
             </GradientButton>
           </div>
@@ -238,6 +304,18 @@ const RegisterForm = () => {
           </p>
         </div>
       </div>
+
+      {/* Terms of Service Modal */}
+      <TermsModal
+        isOpen={showTermsModal}
+        onClose={() => setShowTermsModal(false)}
+      />
+
+      {/* Privacy Policy Modal */}
+      <PrivacyModal
+        isOpen={showPrivacyModal}
+        onClose={() => setShowPrivacyModal(false)}
+      />
     </div>
   );
 };
