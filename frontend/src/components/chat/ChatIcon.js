@@ -6,25 +6,32 @@ const ChatIcon = ({ onClick, isOpen }) => {
       onClick={onClick}
       className={`fixed bottom-6 right-6 w-14 h-14 rounded-full flex items-center justify-center shadow-xl z-50 transition-all duration-300 transform hover:scale-105 ${
         isOpen
-          ? "bg-red-500 hover:bg-red-600 rotate-45"
+          ? "bg-red-500 hover:bg-red-600"
           : "bg-gradient-to-r from-blue-600 to-purple-600"
       }`}
       aria-label={isOpen ? "Close chat" : "Open chat"}
     >
       {isOpen ? (
-        // X icon
+        // Improved X icon that won't render as a plus
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-6 w-6 text-white"
-          fill="none"
+          className="h-8 w-8 text-white"
           viewBox="0 0 24 24"
-          stroke="currentColor"
+          fill="none"
         >
           <path
+            d="M18 6L6 18"
+            stroke="currentColor"
+            strokeWidth="2.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
+          />
+          <path
+            d="M6 6L18 18"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
         </svg>
       ) : (
