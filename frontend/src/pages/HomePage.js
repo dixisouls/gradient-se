@@ -26,7 +26,7 @@ const HomePage = () => {
                 <Link to="/dashboard">
                   <GradientButton
                     size="lg"
-                    className="bg-white text-gradient-primary hover:bg-gray-100"
+                    className="bg-white text-gradient-primary hover:bg-gray-100 border-2 border-white"
                   >
                     Go to Dashboard
                   </GradientButton>
@@ -36,7 +36,7 @@ const HomePage = () => {
                   <Link to="/register">
                     <GradientButton
                       size="lg"
-                      className="bg-white text-gradient-primary hover:bg-gray-100"
+                      className="bg-white text-gradient-primary hover:bg-gray-100 border-2 border-white"
                     >
                       Get Started
                     </GradientButton>
