@@ -1,6 +1,161 @@
 import React, { useState, useRef, useEffect } from "react";
 import chatService from "../../services/chatService";
 
+// Custom function to render Markdown-like formatting
+const renderMarkdown = (text) => {
+  if (!text) return "";
+
+  // Process the text line by line to handle block elements properly
+  const lines = text.split("\n");
+  let inList = false;
+  let inOrderedList = false;
+  let inCodeBlock = false;
+  let inBlockquote = false;
+  let formattedLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i];
+
+    // Check for code blocks (```code```)
+    if (line.trim().startsWith("```")) {
+      if (!inCodeBlock) {
+        // Start of code block
+        inCodeBlock = true;
+        formattedLines.push(
+          '<pre class="bg-gray-100 p-2 rounded-md text-gray-800 overflow-x-auto my-2"><code>'
+        );
+        // Skip the opening ```
+        continue;
+      } else {
+        // End of code block
+        inCodeBlock = false;
+        formattedLines.push("</code></pre>");
+        continue;
+      }
+    }
+
+    // If we're in a code block, don't process other formatting
+    if (inCodeBlock) {
+      formattedLines.push(escapeHTML(line));
+      continue;
+    }
+
+    // Check for block quotes (> text)
+    if (line.trim().startsWith("> ")) {
+      const quoteContent = line.trim().substring(2);
+      if (!inBlockquote) {
+        inBlockquote = true;
+        formattedLines.push(
+          '<blockquote class="border-l-4 border-gray-300 pl-3 py-1 italic text-gray-600 my-2">'
+        );
+      }
+      formattedLines.push(formatInlineMarkdown(escapeHTML(quoteContent)));
+    } else if (inBlockquote) {
+      inBlockquote = false;
+      formattedLines.push("</blockquote>");
+      i--; // Process this line again, now that we're out of the blockquote
+      continue;
+    }
+
+    // Check for headers (# Header)
+    if (line.trim().match(/^#{1,6}\s/)) {
+      const level = line.trim().match(/^(#{1,6})\s/)[1].length;
+      const headerText = line.trim().substring(level + 1);
+      formattedLines.push(
+        `<h${level} class="font-bold text-${
+          level === 1 ? "xl" : level === 2 ? "lg" : "md"
+        } my-2">${formatInlineMarkdown(escapeHTML(headerText))}</h${level}>`
+      );
+      continue;
+    }
+
+    // Check for unordered lists (* item or - item)
+    if (line.trim().match(/^[*-]\s/)) {
+      const listItem = line.trim().substring(2);
+      if (!inList) {
+        inList = true;
+        formattedLines.push('<ul class="list-disc ml-5 my-2">');
+      }
+      formattedLines.push(
+        `<li>${formatInlineMarkdown(escapeHTML(listItem))}</li>`
+      );
+    }
+    // Check for ordered lists (1. item)
+    else if (line.trim().match(/^\d+\.\s/)) {
+      const listItem = line.trim().replace(/^\d+\.\s/, "");
+      if (!inOrderedList) {
+        inOrderedList = true;
+        formattedLines.push('<ol class="list-decimal ml-5 my-2">');
+      }
+      formattedLines.push(
+        `<li>${formatInlineMarkdown(escapeHTML(listItem))}</li>`
+      );
+    }
+    // Regular paragraph text
+    else {
+      // Close any open lists
+      if (inList) {
+        inList = false;
+        formattedLines.push("</ul>");
+      }
+      if (inOrderedList) {
+        inOrderedList = false;
+        formattedLines.push("</ol>");
+      }
+
+      // Handle regular paragraph text (skip empty lines)
+      if (line.trim() !== "") {
+        formattedLines.push(
+          `<p class="my-1">${formatInlineMarkdown(escapeHTML(line))}</p>`
+        );
+      } else {
+        formattedLines.push("<br>");
+      }
+    }
+  }
+
+  // Close any open blocks
+  if (inList) formattedLines.push("</ul>");
+  if (inOrderedList) formattedLines.push("</ol>");
+  if (inBlockquote) formattedLines.push("</blockquote>");
+  if (inCodeBlock) formattedLines.push("</code></pre>");
+
+  return formattedLines.join("");
+};
+
+// Format inline markdown elements: bold, italic, code, links
+const formatInlineMarkdown = (text) => {
+  // Bold (**text**)
+  text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+  // Italic (*text*)
+  text = text.replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+  // Inline code (`code`)
+  text = text.replace(
+    /`([^`]+)`/g,
+    '<code class="bg-gray-100 px-1 rounded text-sm">$1</code>'
+  );
+
+  // Links ([text](url))
+  text = text.replace(
+    /\[(.*?)\]\((.*?)\)/g,
+    '<a href="$2" class="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+
+  return text;
+};
+
+// Helper function to escape HTML characters
+const escapeHTML = (text) => {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
 const ChatWindow = ({ isOpen, onClose, isPreLogin = false }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([
@@ -256,7 +411,16 @@ const ChatWindow = ({ isOpen, onClose, isPreLogin = false }) => {
                       : "bg-white text-gray-700 rounded-2xl rounded-tl-none shadow-sm border border-gray-100"
                   }`}
                 >
-                  <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+                  {msg.type === "user" ? (
+                    <p className="whitespace-pre-wrap text-sm">{msg.content}</p>
+                  ) : (
+                    <div
+                      className="markdown-content text-sm"
+                      dangerouslySetInnerHTML={{
+                        __html: renderMarkdown(msg.content),
+                      }}
+                    ></div>
+                  )}
                   <div
                     className={`text-right mt-1 text-xs ${
                       msg.type === "user" ? "text-blue-100" : "text-gray-400"
