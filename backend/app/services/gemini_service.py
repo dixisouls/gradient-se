@@ -86,6 +86,7 @@ IMPORTANT: Try to match it with the reference solution, sometimes the code might
 
 Maintain a constructive, educational tone that helps students improve while providing fair evaluation.
 Return only one feedback for each submission.
+Do no refer to the reference solution, return feedback based on the student submission and grading rubric. Do not mention the grading rubric in the feedback.
 The input will be provided to you in json form maintaining the input structure given above."""
                     ),
                 ],
