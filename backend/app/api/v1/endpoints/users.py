@@ -101,7 +101,7 @@ def select_user_courses(
         course_selection (CourseSelection): Course selection data
 
     Raises:
-        HTTPException: When courses not found
+        HTTPException: When courses not found or exceeding maximum allowed courses
 
     Returns:
         List[Course]: Selected courses
@@ -116,12 +116,25 @@ def select_user_courses(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="One or more courses not found",
         )
-
-    # Delete current course enrollments
-    db.query(CourseUser).filter(CourseUser.user_id == current_user.id).delete()
-
+    
+    # Get user's current enrolled courses
+    current_enrollments = db.query(CourseUser).filter(CourseUser.user_id == current_user.id).all()
+    
+    # Extract current course IDs
+    current_course_ids = [enrollment.course_id for enrollment in current_enrollments]
+    
+    # Find new courses to enroll in (filter out already enrolled courses)
+    new_course_ids = [course_id for course_id in course_ids if course_id not in current_course_ids]
+    
+    # Check if adding these new courses would exceed the maximum allowed (3 for students)
+    if current_user.role == "student" and len(current_course_ids) + len(new_course_ids) > 3:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Students can enroll in a maximum of 3 courses",
+        )
+    
     # Create new course enrollments
-    for course_id in course_ids:
+    for course_id in new_course_ids:
         # Create role value as a properly typed ENUM value
         role_value = "student" if current_user.role == "student" else "professor"
 
@@ -140,7 +153,8 @@ def select_user_courses(
 
     db.commit()
 
-    # Get updated course list
-    updated_courses = db.query(Course).filter(Course.id.in_(course_ids)).all()
+    # Get updated course list for the user (including existing and new courses)
+    all_course_ids = current_course_ids + new_course_ids
+    updated_courses = db.query(Course).filter(Course.id.in_(all_course_ids)).all()
 
     return updated_courses

@@ -7,6 +7,7 @@ import courseService from "../../services/courseService";
 
 const CourseRegistrationForm = ({
   availableCourses,
+  userCourses,
   onRegistrationSuccess,
   setError,
 }) => {
@@ -14,6 +15,10 @@ const CourseRegistrationForm = ({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [localError, setLocalError] = useState(null);
+
+  // Calculate how many more courses a student can select
+  const MAX_COURSES = 3;
+  const remainingSlots = MAX_COURSES - userCourses.length;
 
   // Toggle course selection
   const toggleCourseSelection = (course) => {
@@ -23,11 +28,15 @@ const CourseRegistrationForm = ({
         selectedCourses.filter((selected) => selected.id !== course.id)
       );
     } else {
-      // If course is not selected, add it (up to max 3)
-      if (selectedCourses.length < 3) {
+      // If course is not selected, check if we can add more courses
+      if (selectedCourses.length < remainingSlots) {
         setSelectedCourses([...selectedCourses, course]);
       } else {
-        setLocalError("You can select a maximum of 3 courses at a time.");
+        setLocalError(
+          `You can select a maximum of ${remainingSlots} more course${
+            remainingSlots !== 1 ? "s" : ""
+          }.`
+        );
         setTimeout(() => {
           setLocalError(null);
         }, 3000);
@@ -95,54 +104,77 @@ const CourseRegistrationForm = ({
       )}
 
       <div className="mb-6">
-        <p className="text-gray-600 mb-2">
-          Select up to 3 courses to register for this term:
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {availableCourses.map((course) => (
-            <div
-              key={course.id}
-              className={`border rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
-                selectedCourses.some((selected) => selected.id === course.id)
-                  ? "border-gradient-primary bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10"
-                  : "border-gray-200 hover:border-gradient-primary"
-              }`}
-              onClick={() => toggleCourseSelection(course)}
-            >
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
-                <div className="mb-2 sm:mb-0 sm:mr-2">
-                  <h3 className="font-semibold text-gray-800 text-sm md:text-base break-words">
-                    {course.name}
-                  </h3>
-                  <p className="text-xs md:text-sm text-gray-500">
-                    {course.code}
-                  </p>
-                </div>
-                <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-800 rounded-full self-start whitespace-nowrap">
-                  {course.term}
-                </span>
-              </div>
-              {course.description && (
-                <p className="text-xs md:text-sm text-gray-600 mt-2 line-clamp-2">
-                  {course.description}
-                </p>
-              )}
+        {userCourses.length >= MAX_COURSES ? (
+          <Alert
+            type="info"
+            message={`You are already enrolled in the maximum number of courses (${MAX_COURSES}). To register for new courses, you must first drop some of your current courses.`}
+            className="mb-4"
+          />
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-2">
+              <p className="text-gray-600">
+                Select up to {remainingSlots} course
+                {remainingSlots !== 1 ? "s" : ""} to register for this term:
+              </p>
+              <span className="text-sm bg-blue-100 text-blue-800 py-1 px-2 rounded-full">
+                {userCourses.length}/{MAX_COURSES} courses enrolled
+              </span>
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {availableCourses.map((course) => (
+                <div
+                  key={course.id}
+                  className={`border rounded-lg p-3 md:p-4 cursor-pointer transition-all ${
+                    selectedCourses.some(
+                      (selected) => selected.id === course.id
+                    )
+                      ? "border-gradient-primary bg-gradient-to-r from-gradient-primary/10 to-gradient-secondary/10"
+                      : "border-gray-200 hover:border-gradient-primary"
+                  }`}
+                  onClick={() => toggleCourseSelection(course)}
+                >
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
+                    <div className="mb-2 sm:mb-0 sm:mr-2">
+                      <h3 className="font-semibold text-gray-800 text-sm md:text-base break-words">
+                        {course.name}
+                      </h3>
+                      <p className="text-xs md:text-sm text-gray-500">
+                        {course.code}
+                      </p>
+                    </div>
+                    <span className="text-xs font-medium px-2 py-1 bg-gray-100 text-gray-800 rounded-full self-start whitespace-nowrap">
+                      {course.term}
+                    </span>
+                  </div>
+                  {course.description && (
+                    <p className="text-xs md:text-sm text-gray-600 mt-2 line-clamp-2">
+                      {course.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between items-center">
         <div className="mb-4 sm:mb-0 w-full sm:w-auto">
           <span className="text-sm text-gray-600">
-            Selected: {selectedCourses.length}/3 courses
+            Selected: {selectedCourses.length}/{remainingSlots} available slots
           </span>
         </div>
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <Button
             variant="outline"
             onClick={() => setSelectedCourses([])}
-            disabled={selectedCourses.length === 0 || loading}
+            disabled={
+              selectedCourses.length === 0 ||
+              loading ||
+              success ||
+              userCourses.length >= MAX_COURSES
+            }
             fullWidth
             className="sm:w-auto"
           >
@@ -150,11 +182,20 @@ const CourseRegistrationForm = ({
           </Button>
           <GradientButton
             onClick={handleSubmit}
-            disabled={selectedCourses.length === 0 || loading || success}
+            disabled={
+              selectedCourses.length === 0 ||
+              loading ||
+              success ||
+              userCourses.length >= MAX_COURSES
+            }
             fullWidth
             className="sm:w-auto"
           >
-            {loading ? "Registering..." : "Register for Selected Courses"}
+            {loading
+              ? "Registering..."
+              : `Add ${selectedCourses.length} Selected Course${
+                  selectedCourses.length !== 1 ? "s" : ""
+                }`}
           </GradientButton>
         </div>
       </div>

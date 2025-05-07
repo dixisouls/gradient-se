@@ -18,6 +18,9 @@ const CourseRegistrationPage = () => {
   const [userCourses, setUserCourses] = useState([]);
   const navigate = useNavigate();
 
+  // Define maximum courses constant
+  const MAX_COURSES = 3;
+
   // Redirect if user is not a student
   useEffect(() => {
     if (currentUser && currentUser.role !== "student") {
@@ -53,6 +56,9 @@ const CourseRegistrationPage = () => {
   const availableCourses = allCourses.filter(
     (course) => !userCourses.some((userCourse) => userCourse.id === course.id)
   );
+
+  // Calculate remaining slots
+  const remainingSlots = MAX_COURSES - userCourses.length;
 
   // Handle successful registration
   const handleRegistrationSuccess = (courses) => {
@@ -123,20 +129,24 @@ const CourseRegistrationPage = () => {
             </section>
 
             {/* Course Registration Form */}
-            {availableCourses.length > 0 ? (
+            {availableCourses.length > 0 && remainingSlots > 0 ? (
               <CourseRegistrationForm
                 availableCourses={availableCourses}
+                userCourses={userCourses}
                 onRegistrationSuccess={handleRegistrationSuccess}
                 setError={setError}
               />
             ) : (
               <Card className="text-center py-8">
                 <h2 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
-                  No Available Courses
+                  {userCourses.length >= MAX_COURSES
+                    ? "Maximum Courses Reached"
+                    : "No Available Courses"}
                 </h2>
                 <p className="text-gray-600 mb-4">
-                  There are no additional courses available for registration at
-                  this time.
+                  {userCourses.length >= MAX_COURSES
+                    ? "You are already enrolled in the maximum number of courses (3). To register for new courses, you must first drop some of your current courses."
+                    : "There are no additional courses available for registration at this time."}
                 </p>
                 <GradientButton onClick={() => navigate("/dashboard")}>
                   Back to Dashboard
