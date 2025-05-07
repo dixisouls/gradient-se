@@ -40,10 +40,52 @@ const RegisterForm = () => {
     setAgreeToTerms(e.target.checked);
   };
 
+  // Password validation function
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    return {
+      isValid:
+        minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecial,
+      errors: {
+        minLength: !minLength,
+        hasUpperCase: !hasUpperCase,
+        hasLowerCase: !hasLowerCase,
+        hasNumber: !hasNumber,
+        hasSpecial: !hasSpecial,
+      },
+    };
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
+
+    // Password validation
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      let errorMsg = "Password must include:";
+      if (passwordValidation.errors.minLength)
+        errorMsg += " at least 8 characters,";
+      if (passwordValidation.errors.hasUpperCase)
+        errorMsg += " one uppercase letter,";
+      if (passwordValidation.errors.hasLowerCase)
+        errorMsg += " one lowercase letter,";
+      if (passwordValidation.errors.hasNumber) errorMsg += " one number,";
+      if (passwordValidation.errors.hasSpecial)
+        errorMsg += " one special character,";
+
+      // Remove trailing comma and add period
+      errorMsg = errorMsg.slice(0, -1) + ".";
+
+      setErrorMessage(errorMsg);
+      return;
+    }
 
     if (formData.password !== formData.confirm_password) {
       setErrorMessage("Passwords do not match");
@@ -181,6 +223,97 @@ const RegisterForm = () => {
                 required
                 minLength={8}
               />
+              {formData.password && (
+                <div className="mt-2 text-sm">
+                  <p className="font-medium mb-1">Password must contain:</p>
+                  <ul className="space-y-1 ml-1">
+                    <li
+                      className={`flex items-center ${
+                        formData.password.length >= 8
+                          ? "text-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-4 h-4 mr-2 rounded-full ${
+                          formData.password.length >= 8
+                            ? "bg-green-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></span>
+                      At least 8 characters
+                    </li>
+                    <li
+                      className={`flex items-center ${
+                        /[A-Z]/.test(formData.password)
+                          ? "text-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-4 h-4 mr-2 rounded-full ${
+                          /[A-Z]/.test(formData.password)
+                            ? "bg-green-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></span>
+                      One uppercase letter
+                    </li>
+                    <li
+                      className={`flex items-center ${
+                        /[a-z]/.test(formData.password)
+                          ? "text-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-4 h-4 mr-2 rounded-full ${
+                          /[a-z]/.test(formData.password)
+                            ? "bg-green-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></span>
+                      One lowercase letter
+                    </li>
+                    <li
+                      className={`flex items-center ${
+                        /[0-9]/.test(formData.password)
+                          ? "text-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-4 h-4 mr-2 rounded-full ${
+                          /[0-9]/.test(formData.password)
+                            ? "bg-green-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></span>
+                      One number
+                    </li>
+                    <li
+                      className={`flex items-center ${
+                        /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+                          formData.password
+                        )
+                          ? "text-green-600"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block w-4 h-4 mr-2 rounded-full ${
+                          /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+                            formData.password
+                          )
+                            ? "bg-green-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></span>
+                      One special character
+                    </li>
+                  </ul>
+                </div>
+              )}
             </div>
 
             <div>
