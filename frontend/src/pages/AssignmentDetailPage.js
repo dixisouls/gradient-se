@@ -87,6 +87,9 @@ const AssignmentDetailPage = () => {
   // Determine if student can submit
   const canSubmit = () => {
     if (isProfessor) return false;
+
+    if (submissions.length > 0 && !assignment.allow_resubmissions) return false;
+
     if (isPastDue()) {
       // Check if resubmissions are allowed
       if (!assignment.allow_resubmissions) return false;
@@ -94,6 +97,7 @@ const AssignmentDetailPage = () => {
       // Only allow resubmissions if there is at least one submission
       return submissions.length > 0;
     }
+
     return true;
   };
 
