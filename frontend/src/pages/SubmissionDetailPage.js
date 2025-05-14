@@ -122,28 +122,13 @@ const SubmissionDetailPage = () => {
       setAcceptingSuccess(false);
       setManualGradingSuccess(false);
 
-      // Create FormData for the API request
-      const formData = new FormData();
-      formData.append("grade", grade);
-      formData.append("feedback_text", feedbackText);
-
-      // Call API endpoint
-      const response = await fetch(
-        `/api/v1/submissions/${submissionId}/grade_manually`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: formData,
-        }
+      // Use the submission service instead of direct fetch
+      const updatedSubmission = await submissionService.manuallyGradeSubmission(
+        submissionId,
+        grade,
+        feedbackText
       );
 
-      if (!response.ok) {
-        throw new Error("Manual grading failed");
-      }
-
-      const updatedSubmission = await response.json();
       setSubmission(updatedSubmission);
       setManualGradingSuccess(true);
 
