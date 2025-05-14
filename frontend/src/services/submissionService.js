@@ -77,6 +77,24 @@ const submissionService = {
     );
     return response.data;
   },
+
+  manuallyGradeSubmission: async (submissionId, grade, feedbackText) => {
+    const formData = new FormData();
+    formData.append("grade", grade);
+    formData.append("feedback_text", feedbackText);
+
+    const response = await api.post(
+      `/submissions/${submissionId}/grade_manually`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  },
 };
 
 export default submissionService;

@@ -764,3 +764,95 @@ def grade_submission_manually(
     }
 
     return response
+
+@router.post("/{submission_id}/grade_manually", response_model=SubmissionResponse)
+def grade_submission_manually_by_professor(
+    submission_id: int,
+    grade: float = Form(...),
+    feedback_text: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Manually grade a submission by professor.
+
+    Only professors who teach the course can manually grade submissions.
+    """
+    # Check permission (only professors can manually grade)
+    if current_user.role not in ["professor", "admin"]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only professors can manually grade submissions",
+        )
+
+    # Get submission
+    submission = db.query(Submission).filter(Submission.id == submission_id).first()
+    if not submission:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found"
+        )
+
+    # Get the assignment to check the course
+    assignment = (
+        db.query(Assignment).filter(Assignment.id == submission.assignment_id).first()
+    )
+    if not assignment:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Associated assignment not found",
+        )
+
+    # For professors, check if they teach the course
+    if current_user.role == "professor":
+        professor_course = (
+            db.query(CourseUser)
+            .filter(
+                CourseUser.user_id == current_user.id,
+                CourseUser.course_id == assignment.course_id,
+                CourseUser.role == "professor",
+            )
+            .first()
+        )
+
+        if not professor_course:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You don't have permission to grade submissions for this course",
+            )
+
+    # Get existing feedback or create new
+    feedback = (
+        db.query(Feedback).filter(Feedback.submission_id == submission.id).first()
+    )
+    
+    if not feedback:
+        # Create new feedback
+        feedback = Feedback(
+            submission_id=submission.id,
+            feedback_text=feedback_text,
+            final_grade=grade,
+            graded_by=f"{current_user.first_name} {current_user.last_name}",
+            professor_review=True,
+            professor_comments=feedback_text,
+        )
+        db.add(feedback)
+    else:
+        # Update existing feedback
+        feedback.feedback_text = feedback_text
+        feedback.final_grade = grade
+        feedback.graded_by = f"{current_user.first_name} {current_user.last_name}"
+        feedback.professor_review = True
+        feedback.professor_comments = feedback_text
+        db.add(feedback)
+
+    # Update submission status to "accepted" (manually graded)
+    submission.status = "accepted"
+    db.add(submission)
+
+    db.commit()
+    db.refresh(submission)
+    db.refresh(feedback)
+
+    # Prepare response
+    response = create_submission_response(submission, assignment, current_user, db)
+    return response

@@ -69,3 +69,9 @@ class SubmissionList(BaseModel):
 
     submissions: List[SubmissionResponse]
     total: int
+
+class ManualGradingRequest(BaseModel):
+    """Request model for manually grading a submission by professor."""
+    
+    grade: float
+    feedback_text: str

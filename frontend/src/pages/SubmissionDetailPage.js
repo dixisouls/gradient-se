@@ -7,6 +7,7 @@ import Loading from "../components/common/Loading";
 import Alert from "../components/common/Alert";
 import Button from "../components/common/Button";
 import submissionService from "../services/submissionService";
+import assignmentService from "../services/assignmentService";
 
 const SubmissionDetailPage = () => {
   const { id } = useParams();
@@ -14,12 +15,14 @@ const SubmissionDetailPage = () => {
   const { currentUser } = useAuth();
 
   const [submission, setSubmission] = useState(null);
+  const [assignment, setAssignment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [regradingLoading, setRegradingLoading] = useState(false);
   const [regradingSuccess, setRegradingSuccess] = useState(false);
   const [acceptingLoading, setAcceptingLoading] = useState(false);
   const [acceptingSuccess, setAcceptingSuccess] = useState(false);
+  const [manualGradingSuccess, setManualGradingSuccess] = useState(false);
 
   const isProfessor = currentUser?.role === "professor";
 
@@ -30,6 +33,14 @@ const SubmissionDetailPage = () => {
         setLoading(true);
         const data = await submissionService.getSubmissionById(id);
         setSubmission(data);
+
+        // Also fetch the assignment details
+        if (data && data.assignment_id) {
+          const assignmentData = await assignmentService.getAssignmentById(
+            data.assignment_id
+          );
+          setAssignment(assignmentData);
+        }
       } catch (error) {
         console.error("Error fetching submission:", error);
         setError("Failed to load submission. Please try again later.");
@@ -49,6 +60,7 @@ const SubmissionDetailPage = () => {
       setRegradingLoading(true);
       setRegradingSuccess(false);
       setAcceptingSuccess(false);
+      setManualGradingSuccess(false);
 
       // Default to Medium strictness
       const updatedSubmission = await submissionService.gradeSubmission(
@@ -79,6 +91,7 @@ const SubmissionDetailPage = () => {
       setAcceptingLoading(true);
       setAcceptingSuccess(false);
       setRegradingSuccess(false);
+      setManualGradingSuccess(false);
 
       const updatedSubmission = await submissionService.acceptSubmissionGrade(
         submissionId
@@ -94,6 +107,53 @@ const SubmissionDetailPage = () => {
     } catch (error) {
       console.error("Error accepting grade:", error);
       setError("Failed to accept grade. Please try again later.");
+    } finally {
+      setAcceptingLoading(false);
+    }
+  };
+
+  // Handle manual grading (professors only)
+  const handleManualGrade = async (submissionId, grade, feedbackText) => {
+    if (!isProfessor) return;
+
+    try {
+      setAcceptingLoading(true);
+      setRegradingSuccess(false);
+      setAcceptingSuccess(false);
+      setManualGradingSuccess(false);
+
+      // Create FormData for the API request
+      const formData = new FormData();
+      formData.append("grade", grade);
+      formData.append("feedback_text", feedbackText);
+
+      // Call API endpoint
+      const response = await fetch(
+        `/api/v1/submissions/${submissionId}/grade_manually`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Manual grading failed");
+      }
+
+      const updatedSubmission = await response.json();
+      setSubmission(updatedSubmission);
+      setManualGradingSuccess(true);
+
+      // Clear success message after a delay
+      setTimeout(() => {
+        setManualGradingSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error manually grading submission:", error);
+      setError("Failed to save manual grade. Please try again later.");
     } finally {
       setAcceptingLoading(false);
     }
@@ -165,10 +225,20 @@ const SubmissionDetailPage = () => {
           />
         )}
 
+        {manualGradingSuccess && (
+          <Alert
+            type="success"
+            message="Manual grade saved successfully! The student will now see your feedback."
+            className="mb-4"
+          />
+        )}
+
         <SubmissionDetail
           submission={submission}
+          assignment={assignment}
           onRegrade={handleRegrade}
           onAccept={handleAcceptGrade}
+          onManualGrade={handleManualGrade}
         />
       </div>
     </div>
