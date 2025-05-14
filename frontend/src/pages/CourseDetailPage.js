@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Sidebar from "../components/layout/Sidebar";
 import CourseForm from "../components/courses/CourseForm";
-import ProfessorAssignment from "../components/admin/ProfessorAssignment"; 
 import Card from "../components/common/Card";
 import GradientButton from "../components/common/GradientButton";
 import Button from "../components/common/Button";
@@ -20,9 +19,8 @@ const CourseDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
-  const [showAssignForm, setShowAssignForm] = useState(false); // New state
 
-  const isAdmin = currentUser?.role === "admin"; // Changed from isProfessor to isAdmin
+  const isProfessor = currentUser?.role === "professor";
 
   useEffect(() => {
     // Check if the ID is "new" - in which case we shouldn't fetch anything
@@ -92,7 +90,7 @@ const CourseDetailPage = () => {
     );
   }
 
-  if (showEditForm && isAdmin) {
+  if (showEditForm && isProfessor) {
     return (
       <div className="flex flex-col md:flex-row">
         <Sidebar />
@@ -122,16 +120,8 @@ const CourseDetailPage = () => {
             </Button>
           </div>
 
-          {isAdmin && (
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button onClick={() => setShowEditForm(true)}>Edit Course</Button>
-              <Button
-                onClick={() => setShowAssignForm(!showAssignForm)}
-                variant={showAssignForm ? "primary" : "outline"}
-              >
-                {showAssignForm ? "Hide Assignment Form" : "Assign Professor"}
-              </Button>
-            </div>
+          {isProfessor && (
+            <Button onClick={() => setShowEditForm(true)}>Edit Course</Button>
           )}
         </div>
 
@@ -187,13 +177,6 @@ const CourseDetailPage = () => {
             </div>
           </div>
         </Card>
-
-        {/* Render the professor assignment form for admins when showAssignForm is true */}
-        {isAdmin && showAssignForm && (
-          <div className="mb-6">
-            <ProfessorAssignment courseId={parseInt(id)} />
-          </div>
-        )}
 
         {/* Assignments Section and rest of component remains the same */}
       </div>

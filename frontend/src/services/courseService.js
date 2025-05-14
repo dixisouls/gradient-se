@@ -47,19 +47,6 @@ const courseService = {
     return response.data;
   },
 
-  getAllProfessors: async () => {
-    const response = await api.get("/courses/professors");
-    return response.data;
-  },
-
-  // New method for assigning a professor to a course
-  assignProfessorToCourse: async (courseId, professorId) => {
-    const response = await api.post(`/courses/${courseId}/assign-professor`, {
-      professor_id: professorId,
-    });
-    return response.data;
-  },
-
   basicSearch: async (query = "", entityType = "", page = 1, perPage = 10) => {
     // Always include query parameter even if empty
     const queryParams = new URLSearchParams();

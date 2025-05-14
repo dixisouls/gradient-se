@@ -10,7 +10,7 @@ const CoursesPage = ({ showCreateForm: initialShowCreateForm = false }) => {
   const { currentUser } = useAuth();
   const [showCreateForm, setShowCreateForm] = useState(initialShowCreateForm);
   const location = useLocation();
-  const isAdmin = currentUser?.role === "admin"; // Changed from isProfessor to isAdmin
+  const isProfessor = currentUser?.role === "professor";
 
   // Check if we have state passed from navigation that should show the form
   useEffect(() => {
@@ -35,7 +35,7 @@ const CoursesPage = ({ showCreateForm: initialShowCreateForm = false }) => {
       <Sidebar />
 
       <div className="flex-1 p-4 sm:p-6 md:p-8 overflow-x-hidden pt-16 md:pt-4">
-        {isAdmin && showCreateForm ? ( // Changed from isProfessor to isAdmin
+        {isProfessor && showCreateForm ? (
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 md:mb-6">
               Create New Course
@@ -44,7 +44,7 @@ const CoursesPage = ({ showCreateForm: initialShowCreateForm = false }) => {
           </div>
         ) : (
           <div>
-            {isAdmin && ( // Changed from isProfessor to isAdmin
+            {isProfessor && (
               <div className="mb-4 md:mb-6">
                 <GradientButton
                   onClick={handleCreateCourse}
