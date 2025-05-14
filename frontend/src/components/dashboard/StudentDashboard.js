@@ -295,7 +295,9 @@ const StudentDashboard = () => {
                       <p className="text-gray-600 mt-1 text-sm">
                         Score:{" "}
                         <span className="font-medium">
-                          {submission.feedback.score}
+                          {submission.feedback.final_grade !== undefined
+                            ? submission.feedback.final_grade
+                            : submission.feedback.score}
                         </span>
                       </p>
                     ) : submission.status === "accepted" &&
@@ -303,7 +305,9 @@ const StudentDashboard = () => {
                       <p className="text-gray-600 mt-1 text-sm">
                         Score:{" "}
                         <span className="font-medium">
-                          {submission.feedback.score}
+                          {submission.feedback.final_grade !== undefined
+                            ? submission.feedback.final_grade
+                            : submission.feedback.score}
                         </span>
                       </p>
                     ) : (

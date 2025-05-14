@@ -271,6 +271,7 @@ def accept_submission_grade(
             "overall_assessment": feedback.feedback_text or "",
             "improvement_suggestions": [detail.issue_description for detail in details],
             "score": feedback.suggested_grade or 0,
+            "final_grade": feedback.final_grade,
             "similarity_score": feedback.similarity_score,
             "professor_review": feedback.professor_review,
         }
@@ -524,6 +525,7 @@ def get_submission(
             "overall_assessment": feedback.feedback_text or "",
             "improvement_suggestions": [detail.issue_description for detail in details],
             "score": feedback.suggested_grade or 0,
+            "final_grade": feedback.final_grade,
             "similarity_score": feedback.similarity_score,
             "professor_review": feedback.professor_review,
         }
@@ -648,6 +650,7 @@ def get_submissions(
                     detail.issue_description for detail in details
                 ],
                 "score": feedback.suggested_grade or 0,  # Use suggested_grade for score
+                "final_grade": feedback.final_grade,
                 "similarity_score": feedback.similarity_score,
                 "professor_review": feedback.professor_review,
             }

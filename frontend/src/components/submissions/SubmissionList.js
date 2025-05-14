@@ -92,7 +92,11 @@ const SubmissionList = ({ submissions, assignmentTitle }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
-                      {submission.feedback?.score !== undefined ? (
+                      {submission.feedback?.final_grade !== undefined ? (
+                        <span className="font-medium">
+                          {submission.feedback.final_grade}
+                        </span>
+                      ) : submission.feedback?.score !== undefined ? (
                         <span className="font-medium">
                           {submission.feedback.score}
                         </span>

@@ -255,7 +255,9 @@ const ProfessorDashboard = () => {
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-sm hidden sm:table-cell">
                         <div className="text-gray-600">
-                          {submission.feedback?.score !== undefined
+                          {submission.feedback?.final_grade !== undefined
+                            ? submission.feedback.final_grade
+                            : submission.feedback?.score !== undefined
                             ? submission.feedback.score
                             : "Pending"}
                         </div>

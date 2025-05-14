@@ -196,7 +196,11 @@ const SubmissionsPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-gray-600">
-                          {submission.feedback?.score !== undefined ? (
+                          {submission.feedback?.final_grade !== undefined ? (
+                            <span className="font-medium">
+                              {submission.feedback.final_grade}
+                            </span>
+                          ) : submission.feedback?.score !== undefined ? (
                             <span className="font-medium">
                               {submission.feedback.score}
                             </span>
@@ -249,7 +253,9 @@ const SubmissionsPage = () => {
                         )}
                       </div>
                       <div className="text-gray-700 font-medium">
-                        {submission.feedback?.score !== undefined ? (
+                        {submission.feedback?.final_grade !== undefined ? (
+                          <span>Score: {submission.feedback.final_grade}</span>
+                        ) : submission.feedback?.score !== undefined ? (
                           <span>Score: {submission.feedback.score}</span>
                         ) : (
                           <span className="text-gray-500">Pending</span>

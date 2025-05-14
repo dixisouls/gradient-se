@@ -358,7 +358,9 @@ const GradingPage = () => {
                       </td>
                       <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
                         <div className="text-gray-600">
-                          {submission.feedback?.score !== undefined
+                          {submission.feedback?.final_grade !== undefined
+                            ? submission.feedback.final_grade
+                            : submission.feedback?.score !== undefined
                             ? submission.feedback.score
                             : "Pending"}
                         </div>
@@ -475,7 +477,9 @@ const GradingPage = () => {
                         Score:
                       </h4>
                       <p className="text-gray-800">
-                        {submission.feedback?.score !== undefined
+                        {submission.feedback?.final_grade !== undefined
+                          ? submission.feedback.final_grade
+                          : submission.feedback?.score !== undefined
                           ? submission.feedback.score
                           : "Pending"}
                       </p>

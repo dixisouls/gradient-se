@@ -21,6 +21,7 @@ class GradingFeedback(BaseModel):
     overall_assessment: str
     improvement_suggestions: List[str]
     score: float
+    final_grade: Optional[float] = None
     similarity_score: Optional[float] = None
     professor_review: Optional[bool] = False
 
