@@ -1,12 +1,14 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db
-from app.core.auth import get_current_active_user, check_is_professor_or_admin
-from app.database.models import Course, User
+from app.core.auth import get_current_active_user, check_is_professor_or_admin, check_is_admin
+from app.database.models import Course, User, CourseUser
 from app.models.course import CourseResponse, CourseList, CourseCreate, CourseUpdate
+from app.models.user import UserResponse
+from pydantic import BaseModel
 
 router = APIRouter()
 
@@ -84,11 +86,11 @@ def get_course(
     "/",
     response_model=CourseResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(check_is_professor_or_admin)],
+    dependencies=[Depends(check_is_admin)],  # Changed to admin only
 )
 def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate) -> Any:
     """
-    Create a new course (professors and admins only).
+    Create a new course (admin only).
 
     Args:
         db (Session): Database session
@@ -125,13 +127,13 @@ def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate) -> 
 @router.put(
     "/{course_id}",
     response_model=CourseResponse,
-    dependencies=[Depends(check_is_professor_or_admin)],
+    dependencies=[Depends(check_is_admin)],  # Changed to admin only
 )
 def update_course(
     *, db: Session = Depends(get_db), course_id: int, course_in: CourseUpdate
 ) -> Any:
     """
-    Update a course (professors and admins only).
+    Update a course (admin only).
 
     Args:
         db (Session): Database session
@@ -166,11 +168,11 @@ def update_course(
 @router.post(
     "/seed",
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(check_is_professor_or_admin)],
+    dependencies=[Depends(check_is_admin)],  # Changed to admin only
 )
 def seed_courses(*, db: Session = Depends(get_db)) -> Any:
     """
-    Seed database with additional courses (professors and admins only).
+    Seed database with additional courses (admin only).
 
     Args:
         db (Session): Database session
@@ -238,3 +240,99 @@ def seed_courses(*, db: Session = Depends(get_db)) -> Any:
         "message": f"Successfully added {added_count} new courses",
         "total_added": added_count,
     }
+
+
+class CourseAssignmentRequest(BaseModel):
+    professor_id: int
+
+
+@router.post(
+    "/{course_id}/assign-professor",
+    response_model=CourseResponse,
+    dependencies=[Depends(check_is_admin)],
+)
+def assign_professor_to_course(
+    *,
+    db: Session = Depends(get_db),
+    course_id: int, 
+    assignment: CourseAssignmentRequest
+) -> Any:
+    """
+    Assign a professor to a course (admin only).
+    
+    Args:
+        db (Session): Database session
+        course_id (int): Course ID
+        assignment (CourseAssignmentRequest): Professor assignment data
+        
+    Raises:
+        HTTPException: When course not found or professor not found
+        
+    Returns:
+        Course: Course information
+    """
+    # Get course by ID
+    course = db.query(Course).filter(Course.id == course_id).first()
+    if not course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
+        )
+        
+    # Get professor by ID
+    professor = db.query(User).filter(
+        User.id == assignment.professor_id,
+        User.role == "professor"
+    ).first()
+    
+    if not professor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Professor not found or user is not a professor"
+        )
+    
+    # Check if professor is already assigned to this course
+    existing_assignment = db.query(CourseUser).filter(
+        CourseUser.course_id == course_id,
+        CourseUser.user_id == professor.id,
+        CourseUser.role == "professor"
+    ).first()
+    
+    if existing_assignment:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Professor is already assigned to this course"
+        )
+    
+    # Create the course-professor relationship
+    course_user = CourseUser(
+        course_id=course_id,
+        user_id=professor.id,
+        role="professor"
+    )
+    
+    db.add(course_user)
+    db.commit()
+    
+    return course
+
+
+@router.get(
+    "/professors",
+    response_model=List[UserResponse],
+    dependencies=[Depends(check_is_admin)],
+)
+def get_professors(
+    *,
+    db: Session = Depends(get_db),
+) -> Any:
+    """
+    Get all professors (admin only).
+    
+    Args:
+        db (Session): Database session
+        
+    Returns:
+        List[User]: List of professors
+    """
+    professors = db.query(User).filter(User.role == "professor").all()
+    return professors

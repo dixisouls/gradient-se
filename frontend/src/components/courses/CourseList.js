@@ -16,7 +16,7 @@ const CourseList = () => {
   const [shouldRefetchTerms, setShouldRefetchTerms] = useState(true);
 
   const { currentUser } = useAuth();
-  const isProfessor = currentUser && currentUser.role === "professor";
+  const isAdmin = currentUser?.role === "admin"; // Changed from isProfessor to isAdmin
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -112,7 +112,7 @@ const CourseList = () => {
             </div>
           )}
 
-          {isProfessor && (
+          {isAdmin && ( // Changed from isProfessor to isAdmin
             <div className="w-full sm:w-auto">
               <GradientButton
                 onClick={handleSeedCourses}
@@ -140,7 +140,7 @@ const CourseList = () => {
           <p className="text-gray-600 mb-4">
             No courses available for the selected term.
           </p>
-          {isProfessor && (
+          {isAdmin && ( // Changed from isProfessor to isAdmin
             <GradientButton onClick={handleSeedCourses}>
               Add Sample Courses
             </GradientButton>
