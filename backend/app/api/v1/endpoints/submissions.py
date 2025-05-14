@@ -854,5 +854,58 @@ def grade_submission_manually_by_professor(
     db.refresh(feedback)
 
     # Prepare response
-    response = create_submission_response(submission, assignment, current_user, db)
+    
+    assignment_title = assignment.title if assignment else None
+
+    # Get student info if professor
+    student_name = None
+    student_email = None
+    if current_user.role in ["professor", "admin"]:
+        student = db.query(User).filter(User.id == submission.user_id).first()
+        if student:
+            student_name = f"{student.first_name} {student.last_name}"
+            student_email = student.email
+
+    # Create response with properly formatted fields
+    response = {
+        "id": submission.id,
+        "assignment_id": submission.assignment_id,
+        "assignment_title": assignment_title,
+        "user_id": submission.user_id,
+        "student_name": student_name,
+        "student_email": student_email,
+        "submission_time": submission.submission_time,
+        "is_late": submission.is_late,
+        "file_name": submission.file_name,
+        "file_path": submission.file_path,
+        "file_type": submission.file_type,
+        "submission_text": submission.submission_text,
+        "attempt_number": submission.attempt_number,
+        "status": submission.status,
+    }
+
+    # Include feedback in response
+    if feedback:
+        # Get feedback details
+        details = (
+            db.query(FeedbackDetail)
+            .filter(FeedbackDetail.feedback_id == feedback.id)
+            .all()
+        )
+
+        # Create GradingFeedback object
+        feedback_response = {
+            "overall_assessment": feedback.feedback_text or "",
+            "improvement_suggestions": [detail.issue_description for detail in details],
+            "score": feedback.suggested_grade or 0,
+            "similarity_score": feedback.similarity_score,
+            "professor_review": feedback.professor_review,
+            "professor_comments": feedback.professor_comments,
+            "final_grade": feedback.final_grade,
+        }
+
+        response["feedback"] = feedback_response
+    else:
+        response["feedback"] = None
+
     return response
