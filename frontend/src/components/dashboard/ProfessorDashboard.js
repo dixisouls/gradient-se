@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import courseService from "../../services/courseService";
 import assignmentService from "../../services/assignmentService";
 import submissionService from "../../services/submissionService";
@@ -10,6 +11,7 @@ import GradientButton from "../common/GradientButton";
 import Button from "../common/Button";
 
 const ProfessorDashboard = () => {
+  const { currentUser } = useAuth();
   const [courses, setCourses] = useState([]);
   const [pendingSubmissions, setPendingSubmissions] = useState([]);
   const [recentAssignments, setRecentAssignments] = useState([]);
@@ -20,6 +22,9 @@ const ProfessorDashboard = () => {
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  // Check if the current user is an admin
+  const isAdmin = currentUser?.role === "admin";
 
   // Fetch professor courses
   useEffect(() => {
@@ -104,7 +109,7 @@ const ProfessorDashboard = () => {
     <div>
       <div className="mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-2">
-          Professor Dashboard
+          {isAdmin ? "Admin Dashboard" : "Professor Dashboard"}
         </h2>
         <p className="text-gray-600 text-sm sm:text-base">
           Welcome back! Manage your courses and student assignments.
@@ -127,13 +132,15 @@ const ProfessorDashboard = () => {
             My Courses
           </h3>
           <div className="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
-            <Button
-              size="sm"
-              onClick={createNewCourse}
-              className="flex-grow sm:flex-grow-0"
-            >
-              Create Course
-            </Button>
+            {isAdmin && (
+              <Button
+                size="sm"
+                onClick={createNewCourse}
+                className="flex-grow sm:flex-grow-0"
+              >
+                Create Course
+              </Button>
+            )}
             <Link to="/courses" className="flex-grow sm:flex-grow-0">
               <GradientButton size="sm" className="w-full">
                 Browse All Courses
@@ -151,9 +158,11 @@ const ProfessorDashboard = () => {
             <p className="text-gray-600 mb-4">
               You haven't created any courses yet.
             </p>
-            <GradientButton onClick={createNewCourse}>
-              Create Your First Course
-            </GradientButton>
+            {isAdmin && (
+              <GradientButton onClick={createNewCourse}>
+                Create Your First Course
+              </GradientButton>
+            )}
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -380,27 +389,30 @@ const ProfessorDashboard = () => {
             </Card>
           </Link>
 
-          <Link to="/courses/new" className="block hover:no-underline">
-            <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
-              <div className="flex flex-col items-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-tertiary mb-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  />
-                </svg>
-                <p className="font-medium">Create Course</p>
-              </div>
-            </Card>
-          </Link>
+          {/* Only show Create Course for admins */}
+          {isAdmin && (
+            <Link to="/courses/new" className="block hover:no-underline">
+              <Card className="text-center py-4 sm:py-6 hover:shadow-md transition-shadow h-full">
+                <div className="flex flex-col items-center">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 sm:h-10 sm:w-10 text-gradient-tertiary mb-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                  <p className="font-medium">Create Course</p>
+                </div>
+              </Card>
+            </Link>
+          )}
         </div>
       </section>
     </div>
