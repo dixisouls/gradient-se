@@ -10,7 +10,7 @@ const CoursesPage = ({ showCreateForm: initialShowCreateForm = false }) => {
   const { currentUser } = useAuth();
   const [showCreateForm, setShowCreateForm] = useState(initialShowCreateForm);
   const location = useLocation();
-  const isProfessor = currentUser?.role === "professor";
+  const isProfessor = currentUser?.role === "admin";
 
   // Check if we have state passed from navigation that should show the form
   useEffect(() => {
