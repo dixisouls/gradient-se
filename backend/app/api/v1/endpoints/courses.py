@@ -175,19 +175,20 @@ def get_course(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_is_professor_or_admin)],
 )
-def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate) -> Any:
+def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate, current_user: User = Depends(get_current_active_user)) -> Any:
     """
-    Create a new course (professors and admins only).
+    Create a new course (professors and admins only) and assign a professor.
 
     Args:
         db (Session): Database session
-        course_in (CourseCreate): Course data
+        course_in (CourseCreate): Course data including professor_id
+        current_user (User): Current authenticated user
 
     Raises:
-        HTTPException: When course with code and term already exists
+        HTTPException: When course with code and term already exists or professor not found
 
     Returns:
-        Course: Created course
+        Course: Created course with professor assigned
     """
     # Check if course already exists
     existing_course = (
@@ -202,13 +203,59 @@ def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate) -> 
             detail=f"Course with code {course_in.code} for term {course_in.term} already exists",
         )
 
+    # Check if professor exists
+    professor = db.query(User).filter(User.id == course_in.professor_id, User.role == "professor").first()
+    if not professor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Professor not found",
+        )
+
     # Create new course
-    course = Course(**course_in.model_dump())
+    course_data = course_in.model_dump(exclude={"professor_id"})
+    course = Course(**course_data)
     db.add(course)
+    db.flush()  # Get the course ID without committing
+
+    # Create course-user relationship for the professor
+    from sqlalchemy import text
+    
+    # Use text() to explicitly cast the string to the ENUM type
+    role_cast = text("'professor'::course_user_role")
+    
+    # Create the course user record
+    course_user = CourseUser(
+        course_id=course.id,
+        user_id=professor.id,
+    )
+    # Set the role using the SQLAlchemy core expression
+    course_user.role = role_cast
+    db.add(course_user)
+
     db.commit()
     db.refresh(course)
 
-    return course
+    # Get professor info for response
+    professor_info = {
+        "id": professor.id,
+        "first_name": professor.first_name,
+        "last_name": professor.last_name,
+        "email": professor.email
+    }
+    
+    # Create response with professors information
+    course_dict = {
+        "id": course.id,
+        "code": course.code,
+        "name": course.name,
+        "description": course.description,
+        "term": course.term,
+        "created_at": course.created_at,
+        "updated_at": course.updated_at,
+        "professors": [professor_info]
+    }
+    
+    return course_dict
 
 
 @router.put(

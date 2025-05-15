@@ -11,15 +11,18 @@ const CourseForm = ({ courseId = null, onCancel }) => {
     name: "",
     description: "",
     term: "Spring 2025", // Default term
+    professor_id: "", // New field for professor selection
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [availableProfessors, setAvailableProfessors] = useState([]);
 
   const navigate = useNavigate();
 
+  // Fetch course data for editing
   useEffect(() => {
     if (courseId) {
       setIsEditing(true);
@@ -33,6 +36,11 @@ const CourseForm = ({ courseId = null, onCancel }) => {
             name: courseData.name,
             description: courseData.description || "",
             term: courseData.term,
+            // If professor data is available, set the first professor's ID
+            professor_id:
+              courseData.professors && courseData.professors.length > 0
+                ? courseData.professors[0].id.toString()
+                : "",
           });
         } catch (error) {
           console.error("Error fetching course:", error);
@@ -45,6 +53,23 @@ const CourseForm = ({ courseId = null, onCancel }) => {
       fetchCourse();
     }
   }, [courseId]);
+
+  // Fetch available professors
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const professors = await courseService.getAvailableProfessors();
+        setAvailableProfessors(professors || []);
+      } catch (error) {
+        console.error("Error fetching professors:", error);
+        setError(
+          "Failed to load available professors. Please try again later."
+        );
+      }
+    };
+
+    fetchProfessors();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +84,18 @@ const CourseForm = ({ courseId = null, onCancel }) => {
     setError(null);
     setSuccess(null);
 
+    // Validate form data
+    if (!formData.code || !formData.name || !formData.term) {
+      setError("Please fill all required fields");
+      return;
+    }
+
+    // Validate professor selection for new courses
+    if (!isEditing && !formData.professor_id) {
+      setError("Please select a professor for this course");
+      return;
+    }
+
     try {
       setLoading(true);
 
@@ -68,12 +105,22 @@ const CourseForm = ({ courseId = null, onCancel }) => {
           name: formData.name,
           description: formData.description,
           term: formData.term,
+          // Include professor_id in updates if it's set
+          ...(formData.professor_id && {
+            professor_id: parseInt(formData.professor_id),
+          }),
         };
 
         await courseService.updateCourse(courseId, updateData);
         setSuccess("Course updated successfully!");
       } else {
-        await courseService.createCourse(formData);
+        // For new courses, include the professor_id
+        const createData = {
+          ...formData,
+          professor_id: parseInt(formData.professor_id),
+        };
+
+        await courseService.createCourse(createData);
         setSuccess("Course created successfully!");
       }
 
@@ -173,6 +220,36 @@ const CourseForm = ({ courseId = null, onCancel }) => {
               />
             </div>
 
+            {/* Professor selection dropdown */}
+            <div className="md:col-span-2">
+              <label htmlFor="professor_id" className="input-label">
+                Assign Professor
+              </label>
+              <select
+                id="professor_id"
+                name="professor_id"
+                value={formData.professor_id}
+                onChange={handleChange}
+                className="input-field"
+                disabled={loading}
+                required={!isEditing} // Only required for new courses
+              >
+                <option value="">-- Select a Professor --</option>
+                {availableProfessors.map((professor) => (
+                  <option key={professor.id} value={professor.id}>
+                    {professor.first_name} {professor.last_name} (
+                    {professor.email})
+                  </option>
+                ))}
+              </select>
+              {availableProfessors.length === 0 && (
+                <p className="text-sm text-red-500 mt-1">
+                  No professors available. Please create a professor account
+                  first.
+                </p>
+              )}
+            </div>
+
             <div className="md:col-span-2">
               <label htmlFor="description" className="input-label">
                 Description (Optional)
@@ -199,7 +276,12 @@ const CourseForm = ({ courseId = null, onCancel }) => {
               Cancel
             </Button>
 
-            <GradientButton type="submit" disabled={loading}>
+            <GradientButton
+              type="submit"
+              disabled={
+                loading || (availableProfessors.length === 0 && !isEditing)
+              }
+            >
               {loading
                 ? "Saving..."
                 : isEditing

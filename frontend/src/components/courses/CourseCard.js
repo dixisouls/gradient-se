@@ -37,7 +37,7 @@ const CourseCard = ({ course }) => {
           <span className="text-sm text-gray-500 block">{code}</span>
         </div>
 
-        {/* Add professor display */}
+        {/* Professor display */}
         <div className="mb-3">
           <span className="text-sm text-gray-600">
             <span className="font-medium">Professor:</span> {professorDisplay}
