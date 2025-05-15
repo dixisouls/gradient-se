@@ -1,12 +1,13 @@
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.dependencies import get_db
 from app.core.auth import get_current_active_user, check_is_professor_or_admin
-from app.database.models import Course, User
+from app.database.models import Course, User, CourseUser
 from app.models.course import CourseResponse, CourseList, CourseCreate, CourseUpdate
+from app.models.user import UserResponse
 
 router = APIRouter()
 
@@ -46,7 +47,64 @@ def get_courses(
     # Get courses with pagination
     courses = query.offset(skip).limit(limit).all()
 
-    return {"courses": courses, "total": total}
+    # Prepare response with professors
+    result_courses = []
+    for course in courses:
+        # Get professors for this course
+        professors = (
+            db.query(User)
+            .join(CourseUser, CourseUser.user_id == User.id)
+            .filter(CourseUser.course_id == course.id, CourseUser.role == "professor")
+            .all()
+        )
+        
+        # Create professor info list
+        professor_info = [
+            {
+                "id": prof.id,
+                "first_name": prof.first_name,
+                "last_name": prof.last_name,
+                "email": prof.email
+            }
+            for prof in professors
+        ]
+        
+        # Create course dict with professors
+        course_dict = {
+            "id": course.id,
+            "code": course.code,
+            "name": course.name,
+            "description": course.description,
+            "term": course.term,
+            "created_at": course.created_at,
+            "updated_at": course.updated_at,
+            "professors": professor_info
+        }
+        
+        result_courses.append(course_dict)
+
+    return {"courses": result_courses, "total": total}
+
+@router.get("/available-professors", response_model=List[UserResponse])
+def get_available_professors(
+    *,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Get all available professors.
+
+    Args:
+        db (Session): Database session
+        current_user (User): Current authenticated user
+
+    Returns:
+        List[UserResponse]: List of professors
+    """
+    # Query professors from database
+    professors = db.query(User).filter(User.role == "professor", User.is_active == True).all()
+    
+    return professors
 
 
 @router.get("/{course_id}", response_model=CourseResponse)
@@ -77,7 +135,38 @@ def get_course(
             status_code=status.HTTP_404_NOT_FOUND, detail="Course not found"
         )
 
-    return course
+    # Get professors for this course
+    professors = (
+        db.query(User)
+        .join(CourseUser, CourseUser.user_id == User.id)
+        .filter(CourseUser.course_id == course_id, CourseUser.role == "professor")
+        .all()
+    )
+    
+    # Create professor info list
+    professor_info = [
+        {
+            "id": prof.id,
+            "first_name": prof.first_name,
+            "last_name": prof.last_name,
+            "email": prof.email
+        }
+        for prof in professors
+    ]
+    
+    # Create course dict with professors
+    course_dict = {
+        "id": course.id,
+        "code": course.code,
+        "name": course.name,
+        "description": course.description,
+        "term": course.term,
+        "created_at": course.created_at,
+        "updated_at": course.updated_at,
+        "professors": professor_info
+    }
+    
+    return course_dict
 
 
 @router.post(

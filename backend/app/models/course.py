@@ -1,6 +1,19 @@
-from typing import Optional, List
+from typing import Optional, List, Dict
 from pydantic import BaseModel, Field
 from datetime import datetime
+
+
+class ProfessorInfo(BaseModel):
+    """Professor information for course response."""
+    
+    id: int
+    first_name: str
+    last_name: str
+    email: str
+
+    class Config:
+        """Config for model."""
+        from_attributes = True
 
 
 class CourseBase(BaseModel):
@@ -32,10 +45,10 @@ class CourseResponse(CourseBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    professors: Optional[List[ProfessorInfo]] = None
 
     class Config:
         """Config for model."""
-
         from_attributes = True
 
 
