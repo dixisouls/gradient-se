@@ -26,7 +26,7 @@ class GuestChatService:
         Returns:
             Dict[str, Any]: Response from the model
         """
-        model = "gemini-2.0-flash-lite"
+        model = "gemini-2.0-flash"
         contents = [
             types.Content(
                 role="user",
@@ -36,6 +36,7 @@ class GuestChatService:
             ),
         ]
         generate_content_config = types.GenerateContentConfig(
+            temperature=0.5,
             response_mime_type="text/plain",
             system_instruction=types.Content(
                 role="system",

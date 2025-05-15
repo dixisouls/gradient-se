@@ -26,7 +26,7 @@ class ChatService:
         Returns:
             Dict[str, Any]: Response from the model
         """
-        model = "gemini-2.0-flash-lite"
+        model = "gemini-2.0-flash"
         contents = [
             types.Content(
                 role="user",
