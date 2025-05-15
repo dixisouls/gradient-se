@@ -10,15 +10,39 @@ const CourseForm = ({ courseId = null, onCancel }) => {
     code: "",
     name: "",
     description: "",
-    term: "Spring 2025", // Default term
+    term: "Spring 2025", 
+    professor_id: "", 
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [availableProfessors, setAvailableProfessors] = useState([]); 
 
   const navigate = useNavigate();
+
+  // Fetch available professors
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      try {
+        const professors = await courseService.getAvailableProfessors();
+        setAvailableProfessors(professors);
+
+        // Select the first professor by default if available and creating a new course
+        if (professors.length > 0 && !courseId) {
+          setFormData((prev) => ({
+            ...prev,
+            professor_id: professors[0].id,
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching professors:", error);
+      }
+    };
+
+    fetchProfessors();
+  }, [courseId]);
 
   useEffect(() => {
     if (courseId) {
@@ -33,7 +57,9 @@ const CourseForm = ({ courseId = null, onCancel }) => {
             name: courseData.name,
             description: courseData.description || "",
             term: courseData.term,
+            professor_id: "", // We'll set this after getting course users
           });
+
         } catch (error) {
           console.error("Error fetching course:", error);
           setError("Failed to load course data. Please try again later.");
@@ -59,15 +85,22 @@ const CourseForm = ({ courseId = null, onCancel }) => {
     setError(null);
     setSuccess(null);
 
+    // Validation
+    if (!formData.professor_id && !isEditing) {
+      setError("Please select a professor for this course");
+      return;
+    }
+
     try {
       setLoading(true);
 
       if (isEditing) {
-        // Only include fields that are allowed to be updated
+
         const updateData = {
           name: formData.name,
           description: formData.description,
           term: formData.term,
+
         };
 
         await courseService.updateCourse(courseId, updateData);
@@ -156,7 +189,46 @@ const CourseForm = ({ courseId = null, onCancel }) => {
               </select>
             </div>
 
-            <div className="md:col-span-2">
+            {/* Add professor selection dropdown - only shown when creating a new course */}
+            {!isEditing && (
+              <div>
+                <label htmlFor="professor_id" className="input-label">
+                  Assign Professor
+                </label>
+                <select
+                  id="professor_id"
+                  name="professor_id"
+                  value={formData.professor_id}
+                  onChange={handleChange}
+                  className="input-field"
+                  disabled={loading || availableProfessors.length === 0}
+                  required
+                >
+                  {availableProfessors.length === 0 ? (
+                    <option value="">No professors available</option>
+                  ) : (
+                    <>
+                      <option value="" disabled>
+                        Select a professor
+                      </option>
+                      {availableProfessors.map((professor) => (
+                        <option key={professor.id} value={professor.id}>
+                          {professor.first_name} {professor.last_name} (
+                          {professor.email})
+                        </option>
+                      ))}
+                    </>
+                  )}
+                </select>
+                {availableProfessors.length === 0 && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    No professors available. Create a professor account first.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <div className={isEditing ? "md:col-span-2" : ""}>
               <label htmlFor="name" className="input-label">
                 Course Name
               </label>
@@ -199,7 +271,12 @@ const CourseForm = ({ courseId = null, onCancel }) => {
               Cancel
             </Button>
 
-            <GradientButton type="submit" disabled={loading}>
+            <GradientButton
+              type="submit"
+              disabled={
+                loading || (!isEditing && availableProfessors.length === 0)
+              }
+            >
               {loading
                 ? "Saving..."
                 : isEditing
