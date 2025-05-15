@@ -3,7 +3,15 @@ import { Link } from "react-router-dom";
 import Card from "../common/Card";
 
 const CourseCard = ({ course }) => {
-  const { id, code, name, description, term } = course;
+  const { id, code, name, description, term, professors } = course;
+
+  // Format professor names
+  const professorDisplay =
+    professors && professors.length > 0
+      ? professors
+          .map((prof) => `${prof.first_name} ${prof.last_name}`)
+          .join(", ")
+      : "No professor assigned";
 
   // Truncate description if it's too long
   const truncatedDescription =
@@ -27,6 +35,13 @@ const CourseCard = ({ course }) => {
             </span>
           </div>
           <span className="text-sm text-gray-500 block">{code}</span>
+        </div>
+
+        {/* Add professor display */}
+        <div className="mb-3">
+          <span className="text-sm text-gray-600">
+            <span className="font-medium">Professor:</span> {professorDisplay}
+          </span>
         </div>
 
         {truncatedDescription && (

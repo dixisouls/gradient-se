@@ -35,6 +35,11 @@ const courseService = {
     return response.data;
   },
 
+    getAvailableProfessors: async () => {
+    const response = await api.get("/courses/available-professors");
+    return response.data;
+  },
+
   selectCourses: async (courseIds) => {
     const response = await api.post("/users/me/courses", {
       course_ids: courseIds,

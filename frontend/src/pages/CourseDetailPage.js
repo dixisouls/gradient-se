@@ -138,6 +138,28 @@ const CourseDetailPage = () => {
             <p className="text-gray-600 mt-1">{course.code}</p>
           </div>
 
+          {/* Add Professor Information Section */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Professor
+              {course.professors && course.professors.length !== 1 ? "s" : ""}
+            </h3>
+            {course.professors && course.professors.length > 0 ? (
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-md">
+                {course.professors.map((professor, index) => (
+                  <div key={professor.id} className="mb-2 last:mb-0">
+                    <p className="font-medium text-gray-800">
+                      {professor.first_name} {professor.last_name}
+                    </p>
+                    <p className="text-sm text-gray-600">{professor.email}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-600 italic">No professor assigned</p>
+            )}
+          </div>
+
           {course.description && (
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
