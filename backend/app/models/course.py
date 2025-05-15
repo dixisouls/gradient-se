@@ -14,7 +14,8 @@ class CourseBase(BaseModel):
 
 class CourseCreate(CourseBase):
     """Course creation model."""
-    professor_id: int
+
+    pass
 
 
 class CourseUpdate(BaseModel):

@@ -1,14 +1,12 @@
-from typing import Any, Optional, List
+from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
-from sqlalchemy import text
 
 from app.api.dependencies import get_db
 from app.core.auth import get_current_active_user, check_is_professor_or_admin
-from app.database.models import Course, User, CourseUser
+from app.database.models import Course, User
 from app.models.course import CourseResponse, CourseList, CourseCreate, CourseUpdate
-from app.models.user import UserResponse
 
 router = APIRouter()
 
@@ -88,26 +86,21 @@ def get_course(
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(check_is_professor_or_admin)],
 )
-def create_course(
-    *, 
-    db: Session = Depends(get_db), 
-    course_in: CourseCreate,
-    current_user: User = Depends(get_current_active_user)
-) -> Any:
+def create_course(*, db: Session = Depends(get_db), course_in: CourseCreate) -> Any:
     """
     Create a new course (professors and admins only).
 
     Args:
         db (Session): Database session
-        course_in (CourseCreate): Course data with professor_id
-        current_user (User): Current authenticated user
+        course_in (CourseCreate): Course data
 
     Raises:
-        HTTPException: When course with code and term already exists or professor not found
+        HTTPException: When course with code and term already exists
 
     Returns:
         Course: Created course
     """
+    # Check if course already exists
     existing_course = (
         db.query(Course)
         .filter(Course.code == course_in.code, Course.term == course_in.term)
@@ -119,28 +112,10 @@ def create_course(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Course with code {course_in.code} for term {course_in.term} already exists",
         )
-    
-    professor = db.query(User).filter(User.id == course_in.professor_id, User.role == "professor").first()
-    if not professor:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid professor ID or user is not a professor",
-        )
 
-    course_data = course_in.model_dump(exclude={"professor_id"})
-    course = Course(**course_data)
+    # Create new course
+    course = Course(**course_in.model_dump())
     db.add(course)
-    db.flush()  # Get the course ID without committing
-    
-    role_cast = text("'professor'::course_user_role")
-    course_user = CourseUser(
-        course_id=course.id,
-        user_id=course_in.professor_id,
-    )
-    # Set the role using the SQLAlchemy core expression
-    course_user.role = role_cast
-    
-    db.add(course_user)
     db.commit()
     db.refresh(course)
 
@@ -263,22 +238,3 @@ def seed_courses(*, db: Session = Depends(get_db)) -> Any:
         "message": f"Successfully added {added_count} new courses",
         "total_added": added_count,
     }
-
-@router.get("/available-professors", response_model=List[UserResponse])
-def get_available_professors(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_active_user),
-) -> Any:
-    """
-    Get all available professors for course assignment.
-
-    Args:
-        db (Session): Database session
-        current_user (User): Current authenticated user
-
-    Returns:
-        List[User]: List of professors
-    """ 
-    professors = db.query(User).filter(User.role == "professor").all()
-    print(professors)
-    return professors

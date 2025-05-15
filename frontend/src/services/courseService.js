@@ -78,11 +78,6 @@ const courseService = {
     const response = await api.post("/search/advanced", searchParams);
     return response.data;
   },
-
-  getAvailableProfessors: async () => {
-    const response = await api.get("/courses/available-professors");
-    return response.data;
-  },
 };
 
 export default courseService;
